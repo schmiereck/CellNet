@@ -90,21 +90,28 @@ public class GridService {
     }
 
     /**
-     * Erzeugt ein Grid, bei dem jede Zelle ihre RuleNr entsprechend der Stellen im 256er-System von gridNr erhält.
+     * Erzeugt ein Grid, bei dem jede Zelle ab Zeile 1 ihre RuleNr entsprechend der Stellen im 256er-System von gridNr erhält.
      * Die Zellen werden zeilenweise (y,x) von oben links nach unten rechts befüllt.
+     * Die erste Zeile (y=0) ist der Input-Layer und bekommt ruleNr=0.
      */
-    public static Grid createGridForCombination(final int sizeX, final int sizeY, final BigInteger gridNr) {
-        final Grid grid = new Grid(sizeX, sizeY);
-        grid.cellArr = new Cell[sizeY][sizeX];
-        BigInteger nr = gridNr;
-        for (int y = 0; y < sizeY; y++) {
+    public static Grid createGridForCombination(final int sizeX, final int sizeY, final java.math.BigInteger gridNr) {
+        // sizeY = Anzahl der Regel-Zeilen (ohne Input-Layer)
+        final int totalSizeY = sizeY + 1;
+        final Grid grid = new Grid(sizeX, totalSizeY);
+        grid.cellArr = new Cell[totalSizeY][sizeX];
+        java.math.BigInteger nr = gridNr;
+        for (int y = 0; y < totalSizeY; y++) {
             for (int x = 0; x < sizeX; x++) {
                 final Cell cell = new Cell();
-                // Die unterste Stelle ist für die erste Zelle (y=0,x=0), dann (y=0,x=1), ...
-                cell.ruleNr = nr.mod(BigInteger.valueOf(256L)).intValue();
+                if (y == 0) {
+                    cell.ruleNr = 0; // Input-Layer
+                } else {
+                    int ruleNr = nr.mod(java.math.BigInteger.valueOf(256)).intValue();
+                    cell.ruleNr = ruleNr;
+                    nr = nr.divide(java.math.BigInteger.valueOf(256));
+                }
                 cell.value = 0;
                 grid.cellArr[y][x] = cell;
-                nr = nr.divide(BigInteger.valueOf(256L));
             }
         }
         return grid;

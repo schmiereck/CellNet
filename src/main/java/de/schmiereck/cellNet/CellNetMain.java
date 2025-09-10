@@ -216,8 +216,10 @@ public class CellNetMain {
 
     private static BigInteger findRuleNumbers2(final List<OpOutput> opOutputArr, final int sizeX, final int sizeY) {
         System.out.printf("---------------------------------------------------------%n");
+        // sizeY = Anzahl Regel-Zeilen (ohne Input-Layer)
+        final int totalSizeY = sizeY + 1;
         final BigInteger maxGridNr = BigInteger.valueOf(256).pow(sizeX * sizeY);
-        System.out.printf("size: %d, %d (maxGridNr: %,d)%n", sizeX, sizeY, maxGridNr);
+        System.out.printf("size: %d, %d (maxGridNr: %,d)%n", sizeX, totalSizeY, maxGridNr);
 
         final BigInteger progressDivisor;
         final BigInteger tmpProgressDivisor = maxGridNr.divide(BigInteger.valueOf(80L));
