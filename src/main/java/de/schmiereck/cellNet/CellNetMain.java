@@ -2,7 +2,6 @@ package de.schmiereck.cellNet;
 
 import java.math.BigInteger;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
 public class CellNetMain {
@@ -12,10 +11,11 @@ public class CellNetMain {
         System.out.printf("CellNet V1.0.0%n");
 
         //findTestRuleNumbers2(); // Works.
-        findBooleanRuleNumbers2(); // Works.
+        //findBooleanRuleNumbers2(); // Works.
 
         //findTestRuleNumbers(); // Find nothing.
-        //findCountRuleNumbers(); // Find nothing.
+        //findCountRuleNumbers2(); // Find nothing.
+        findCountRuleNumbers3(); // Find nothing.
         //findBooleanRuleNumbers(); // Works.
 
         //final Grid grid = GridService.createGrid(3, 4, 0);
@@ -36,7 +36,7 @@ public class CellNetMain {
                 new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
                 new int[][] { { 0, 0 }, { 0, 1 }, { 0, 1 }, { 0, 1 } }));
 
-        findUniversalRuleNr2(maxSearchSize, opOutputArr);
+        findUniversalRuleNr2(maxSearchSize, opOutputArr, 2, 2);
     }
 
     private static void findTestRuleNumbers() {
@@ -52,7 +52,7 @@ public class CellNetMain {
         findUniversalRuleNr(maxSearchSize, opOutputArr);
     }
 
-    private static void findCountRuleNumbers() {
+    private static void findCountRuleNumbers2() {
         //final int maxSearchSize = 256;
         final int maxSearchSize = 64;
 
@@ -62,7 +62,20 @@ public class CellNetMain {
                 new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
                 new int[][] { { 0, 1 }, { 1, 0 }, { 1, 1 }, { 0, 0 } }));
 
-        findUniversalRuleNr(maxSearchSize, opOutputArr);
+        findUniversalRuleNr2(maxSearchSize, opOutputArr, 2, 2);
+    }
+
+    private static void findCountRuleNumbers3() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 64;
+
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("COUNT",
+                new int[][] { { 0, 0, 0 }, { 0, 0, 1 }, { 0, 1, 0 }, { 0, 1, 1 },    { 1, 0, 0 }, { 1, 0, 1 }, { 1, 1, 0 }, { 1, 1, 1 } },
+                new int[][] { { 0, 0, 1 }, { 0, 1, 0 }, { 0, 1, 1 }, { 1, 0, 0 },    { 1, 0, 1 }, { 1, 1, 0 }, { 1, 1, 1 }, { 0, 0, 0 } }));
+
+        findUniversalRuleNr2(maxSearchSize, opOutputArr, 3, 2);
     }
 
     private static void findBooleanRuleNumbers() {
@@ -72,12 +85,12 @@ public class CellNetMain {
         // Definition der booleschen Operationen und deren erwartete Outputs
         final List<OpOutput> opOutputArr = new ArrayList<>();
 
-        opOutputArr.add(new OpOutput("AND", new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 0 }, { 0 }, { 0 }, { 1 } }));
-        opOutputArr.add(new OpOutput("OR",  new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 0 }, { 1 }, { 1 }, { 1 } }));
-        opOutputArr.add(new OpOutput("NAND",new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 1 }, { 1 }, { 1 }, { 0 } }));
-        opOutputArr.add(new OpOutput("NOR", new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 1 }, { 0 }, { 0 }, { 0 } }));
-        opOutputArr.add(new OpOutput("XOR", new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 0 }, { 1 }, { 1 }, { 0 } }));
-        opOutputArr.add(new OpOutput("XNOR",new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 1 }, { 0 }, { 0 }, { 1 } }));
+        opOutputArr.add(new OpOutput("AND", new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 1, 0 } }));
+        opOutputArr.add(new OpOutput("OR",  new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 0, 0 }, { 1, 0 }, { 1, 0 }, { 1, 0 } }));
+        opOutputArr.add(new OpOutput("NAND",new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 1, 0 }, { 1, 0 }, { 1, 0 }, { 0, 0 } }));
+        opOutputArr.add(new OpOutput("NOR", new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 1, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } }));
+        opOutputArr.add(new OpOutput("XOR", new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 0, 0 }, { 1, 0 }, { 1, 0 }, { 0, 0 } }));
+        opOutputArr.add(new OpOutput("XNOR",new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 1, 0 }, { 0, 0 }, { 0, 0 }, { 1, 0 } }));
 
         findUniversalRuleNr(maxSearchSize, opOutputArr);
     }
@@ -96,7 +109,7 @@ public class CellNetMain {
         opOutputArr.add(new OpOutput("XOR", new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 0 }, { 1 }, { 1 }, { 0 } }));
         opOutputArr.add(new OpOutput("XNOR",new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 1 }, { 0 }, { 0 }, { 1 } }));
 
-        findUniversalRuleNr2(maxSearchSize, opOutputArr);
+        findUniversalRuleNr2(maxSearchSize, opOutputArr, 2, 2);
     }
 
     private static void findUniversalRuleNr(int maxSearchSize, List<OpOutput> opOutputArr) {
@@ -113,9 +126,10 @@ public class CellNetMain {
         }
     }
 
-    private static void findUniversalRuleNr2(int maxSearchSize, List<OpOutput> opOutputArr) {
-        for (int sizeX = 2; sizeX <= maxSearchSize; sizeX++) {
-            for (int sizeY = 2; sizeY <= maxSearchSize; sizeY++) {
+    private static void findUniversalRuleNr2(int maxSearchSize, List<OpOutput> opOutputArr,
+                                             final int startSizeX, final int startSizeY) {
+        for (int sizeX = startSizeX; sizeX <= maxSearchSize; sizeX++) {
+            for (int sizeY = startSizeY; sizeY <= maxSearchSize; sizeY++) {
                 final BigInteger universalRuleNr = findRuleNumbers2(opOutputArr, sizeX, sizeY);
                 if (Objects.nonNull(universalRuleNr)) {
                     System.out.printf("Universelle RuleNr (für alle Operationen gültig): %d%n", universalRuleNr);
@@ -215,20 +229,22 @@ public class CellNetMain {
 
         System.out.println("|0%----------------|25%----------------|50%----------------|75-----------------|%100%");
 
-        // Operationen selbst parallel verarbeiten (jede Operation hat ihre eigene vollständige Suche)
+        // Fortschrittszähler für parallele Streams
+        final java.util.concurrent.atomic.AtomicLong progressCounter = new java.util.concurrent.atomic.AtomicLong(0);
+        final long progressDivisorLong = progressDivisor.longValue();
+        final long maxGridNrLong = maxGridNr.longValue();
+
         IntStream.range(0, opOutputArr.size()).parallel().forEach(pos -> {
             final OpOutput opOutput = opOutputArr.get(pos);
             final String opName = opOutput.opName();
             final int[][] expectedOutputArrArr = opOutput.expectedOutputArrArr();
             final int[][] inputArrArr = opOutput.inputArrArr;
-            final List<BigInteger> localMatcheGridNrList = new ArrayList<>();
+            final List<BigInteger> localMatcheGridNrList = java.util.Collections.synchronizedList(new ArrayList<>());
 
-            // Hinweis: Die eigentliche Kombinations-Iteration ist weiterhin sequentiell pro Operation.
-            BigInteger gridNr = BigInteger.ZERO;
-            final int startRuleNr = 0;
-            Grid grid = GridService.createGrid(sizeX, sizeY, startRuleNr);
-
-            while (Objects.nonNull(grid)) {
+            // Parallele Iteration über alle möglichen gridNr (nur für kleine maxGridNr sinnvoll)
+            java.util.stream.LongStream.range(0, maxGridNrLong).parallel().forEach(i -> {
+                BigInteger gridNr = BigInteger.valueOf(i);
+                Grid grid = GridService.createGridForCombination(sizeX, sizeY, gridNr);
                 boolean allInputsMatch = true;
                 inputArrArrPosLoop:
                 for (int inputArrArrPos = 0; inputArrArrPos < inputArrArr.length; inputArrArrPos++) {
@@ -246,15 +262,16 @@ public class CellNetMain {
                 }
                 if (allInputsMatch) {
                     localMatcheGridNrList.add(gridNr);
+                    System.out.println(gridNr);
                 }
-                grid = GridService.createNextRuleCombinationGrid(grid);
-
-                if (gridNr.mod(progressDivisor).equals(BigInteger.ZERO)) {
-                    System.out.print("*");
+                // Fortschrittsanzeige
+                long current = progressCounter.incrementAndGet();
+                if (current % progressDivisorLong == 0) {
+                    synchronized (System.out) {
+                        System.out.print("*");
+                    }
                 }
-
-                gridNr = gridNr.add(BigInteger.ONE);
-            }
+            });
             System.out.println();
             matchingGridNrListArr[pos] = localMatcheGridNrList;
             System.out.printf("%s: %s\n", opName, localMatcheGridNrList);
@@ -298,3 +315,4 @@ public class CellNetMain {
         System.out.println();
     }
 }
+

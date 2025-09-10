@@ -86,4 +86,26 @@ public class GridService {
         if (allZero) return null;
         return nextGrid;
     }
+
+    /**
+     * Erzeugt ein Grid, bei dem jede Zelle ihre RuleNr entsprechend der Stellen im 256er-System von gridNr erhält.
+     * Die Zellen werden zeilenweise (y,x) von oben links nach unten rechts befüllt.
+     */
+    public static Grid createGridForCombination(final int sizeX, final int sizeY, final java.math.BigInteger gridNr) {
+        final Grid grid = new Grid(sizeX, sizeY);
+        grid.cellArr = new Cell[sizeY][sizeX];
+        java.math.BigInteger nr = gridNr;
+        for (int y = 0; y < sizeY; y++) {
+            for (int x = 0; x < sizeX; x++) {
+                final Cell cell = new Cell();
+                // Die unterste Stelle ist für die erste Zelle (y=0,x=0), dann (y=0,x=1), ...
+                int ruleNr = nr.mod(java.math.BigInteger.valueOf(256)).intValue();
+                cell.ruleNr = ruleNr;
+                cell.value = 0;
+                grid.cellArr[y][x] = cell;
+                nr = nr.divide(java.math.BigInteger.valueOf(256));
+            }
+        }
+        return grid;
+    }
 }
