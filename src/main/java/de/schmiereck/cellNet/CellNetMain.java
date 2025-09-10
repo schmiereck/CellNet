@@ -2,6 +2,8 @@ package de.schmiereck.cellNet;
 
 import java.math.BigInteger;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.IntStream;
 
 public class CellNetMain {
     public static boolean showExtraResults = false;
@@ -28,12 +30,10 @@ public class CellNetMain {
         final int maxSearchSize = 256;
         //final int maxSearchSize = 64;
 
-        // Definition der booleschen Operationen und deren erwartete Outputs
         final List<OpOutput> opOutputArr = new ArrayList<>();
 
         opOutputArr.add(new OpOutput("OR-Test",
                 new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
-                //new int[][] { { 0, 0 }, { 1, 0 }, { 1, 0 }, { 1, 0 } }));
                 new int[][] { { 0, 0 }, { 0, 1 }, { 0, 1 }, { 0, 1 } }));
 
         findUniversalRuleNr2(maxSearchSize, opOutputArr);
@@ -43,12 +43,10 @@ public class CellNetMain {
         final int maxSearchSize = 256;
         //final int maxSearchSize = 64;
 
-        // Definition der booleschen Operationen und deren erwartete Outputs
         final List<OpOutput> opOutputArr = new ArrayList<>();
 
         opOutputArr.add(new OpOutput("OR-Test",
                 new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
-                //new int[][] { { 0, 0 }, { 1, 0 }, { 1, 0 }, { 1, 0 } }));
                 new int[][] { { 0, 0 }, { 0, 1 }, { 0, 1 }, { 0, 1 } }));
 
         findUniversalRuleNr(maxSearchSize, opOutputArr);
@@ -58,7 +56,6 @@ public class CellNetMain {
         //final int maxSearchSize = 256;
         final int maxSearchSize = 64;
 
-        // Definition der booleschen Operationen und deren erwartete Outputs
         final List<OpOutput> opOutputArr = new ArrayList<>();
 
         opOutputArr.add(new OpOutput("COUNT",
@@ -136,54 +133,51 @@ public class CellNetMain {
         System.out.printf("---------------------------------------------------------%n");
         System.out.printf("size: %d, %d%n", sizeX, sizeY);
 
+        @SuppressWarnings("unchecked")
         final List<Integer>[] matchingRuleListArr = new ArrayList[opOutputArr.size()];
 
-        for (int pos = 0; pos < opOutputArr.size(); pos++) {
+        // Parallele Verarbeitung jeder Operation
+        IntStream.range(0, opOutputArr.size()).parallel().forEach(pos -> {
             final OpOutput opOutput = opOutputArr.get(pos);
-
             final String opName = opOutput.opName();
             final int[][] expectedOutputArrArr = opOutput.expectedOutputArrArr();
-            // Eingabekombinationen
             final int[][] inputArrArr = opOutput.inputArrArr;
 
-            matchingRuleListArr[pos] = new ArrayList<>();
-
-            for (int ruleNr = 0; ruleNr <= 255; ruleNr++) {
+            final List<Integer> matchingRules = new ArrayList<>();
+            // Prüfe alle 256 Regeln parallel
+            IntStream.rangeClosed(0, 255).parallel().forEach(ruleNr -> {
                 boolean allInputsMatch = true;
-                inputArrArrPosLoop:
-                for (int inputArrArrPos = 0; inputArrArrPos < inputArrArr.length; inputArrArrPos++) {
+                for (int inputArrArrPos = 0; inputArrArrPos < inputArrArr.length && allInputsMatch; inputArrArrPos++) {
                     final int[] inputArr = inputArrArr[inputArrArrPos];
-
                     final Grid grid = GridService.createGrid(sizeX, sizeY, ruleNr);
-
                     GridService.submitInput(grid, inputArr);
                     CellNetService.calcGrid(grid);
                     final int[] outputArr = GridService.retieveOutput(grid);
-
                     final int[] expectedOutputArr = expectedOutputArrArr[inputArrArrPos];
                     for (int outputArrPos = 0; outputArrPos < expectedOutputArr.length; outputArrPos++) {
                         if (outputArr[outputArrPos] != expectedOutputArr[outputArrPos]) {
                             allInputsMatch = false;
-                            break inputArrArrPosLoop;
+                            break;
                         }
                     }
                 }
                 if (allInputsMatch) {
-                    matchingRuleListArr[pos].add(ruleNr);
+                    synchronized (matchingRules) { // Sammelliste schützen
+                        matchingRules.add(ruleNr);
+                    }
                 }
-            }
-            System.out.printf("%s: %s\n", opName, matchingRuleListArr[pos]);
-        }
+            });
+            matchingRuleListArr[pos] = matchingRules;
+            System.out.printf("%s: %s\n", opName, matchingRules);
+        });
 
         if (showExtraResults) {
             System.out.printf("---------------------------------------------------------%n");
             for (int pos = 0; pos < opOutputArr.size(); pos++) {
                 final OpOutput opOutput = opOutputArr.get(pos);
-
                 final String opName = opOutput.opName();
                 final int[][] expectedOutputArrArr = opOutput.expectedOutputArrArr();
                 final int[][] inputArrArr = opOutput.inputArrArr;
-
                 System.out.printf("%s: %s\n", opName, matchingRuleListArr[pos]);
                 if (matchingRuleListArr[pos].size() > 0) {
                     printGridForOperation(opName, matchingRuleListArr[pos].getFirst(), inputArrArr, expectedOutputArrArr, sizeX, sizeY);
@@ -191,9 +185,6 @@ public class CellNetMain {
             }
         }
         Integer universalRuleNr = null;
-        //for (int pos = 0; pos < matchingRuleListArr.length; pos++) {
-        //    final List<Integer> matchingRuleList = matchingRuleListArr[pos];
-        //}
         if (matchingRuleListArr.length > 0) {
             Set<Integer> intersection = new HashSet<>(matchingRuleListArr[0]);
             for (int i = 1; i < matchingRuleListArr.length; i++) {
@@ -211,40 +202,40 @@ public class CellNetMain {
         final BigInteger maxRuleNr = BigInteger.valueOf(256).pow(sizeX * sizeY);
         System.out.printf("size: %d, %d (maxRuleNr: %,d)%n", sizeX, sizeY, maxRuleNr);
 
-        // Fortschritts-Divisor nur einmal berechnen
-        BigInteger progressDivisor = maxRuleNr.divide(BigInteger.valueOf(80L));
-        if (progressDivisor.equals(BigInteger.ZERO)) {
+        final BigInteger progressDivisor;
+        final BigInteger tmpProgressDivisor = maxRuleNr.divide(BigInteger.valueOf(80L));
+        if (tmpProgressDivisor.equals(BigInteger.ZERO)) {
             progressDivisor = BigInteger.ONE;
+        } else {
+            progressDivisor = tmpProgressDivisor;
         }
 
+        @SuppressWarnings("unchecked")
         final List<BigInteger>[] matchingRuleListArr = new ArrayList[opOutputArr.size()];
 
-        for (int pos = 0; pos < opOutputArr.size(); pos++) {
-            final OpOutput opOutput = opOutputArr.get(pos);
+        System.out.println("|0%----------------|25%----------------|50%----------------|75-----------------|%100%");
 
+        // Operationen selbst parallel verarbeiten (jede Operation hat ihre eigene vollständige Suche)
+        IntStream.range(0, opOutputArr.size()).parallel().forEach(pos -> {
+            final OpOutput opOutput = opOutputArr.get(pos);
             final String opName = opOutput.opName();
             final int[][] expectedOutputArrArr = opOutput.expectedOutputArrArr();
-            // Eingabekombinationen
             final int[][] inputArrArr = opOutput.inputArrArr;
+            final List<BigInteger> localMatches = new ArrayList<>();
 
-            matchingRuleListArr[pos] = new ArrayList<>();
-
-            System.out.println("|0%----------------|25%----------------|50%----------------|75-----------------|%100%");
-
+            // Hinweis: Die eigentliche Kombinations-Iteration ist weiterhin sequentiell pro Operation.
             final int startRuleNr = 0;
             BigInteger ruleNr = BigInteger.ZERO;
             Grid grid = GridService.createGrid(sizeX, sizeY, startRuleNr);
-
+            long printed = 0L;
             while (Objects.nonNull(grid)) {
                 boolean allInputsMatch = true;
                 inputArrArrPosLoop:
                 for (int inputArrArrPos = 0; inputArrArrPos < inputArrArr.length; inputArrArrPos++) {
                     final int[] inputArr = inputArrArr[inputArrArrPos];
-
                     GridService.submitInput(grid, inputArr);
                     CellNetService.calcGrid(grid);
                     final int[] outputArr = GridService.retieveOutput(grid);
-
                     final int[] expectedOutputArr = expectedOutputArrArr[inputArrArrPos];
                     for (int outputArrPos = 0; outputArrPos < expectedOutputArr.length; outputArrPos++) {
                         if (outputArr[outputArrPos] != expectedOutputArr[outputArrPos]) {
@@ -254,24 +245,27 @@ public class CellNetMain {
                     }
                 }
                 if (allInputsMatch) {
-                    matchingRuleListArr[pos].add(ruleNr);
+                    localMatches.add(ruleNr);
                 }
                 grid = GridService.createNextRuleCombinationGrid(grid);
-                // Fortschrittsanzeige mit BigInteger
+
                 if (ruleNr.mod(progressDivisor).equals(BigInteger.ZERO)) {
                     System.out.print("*");
+                    printed++;
                 }
+
                 ruleNr = ruleNr.add(BigInteger.ONE);
             }
             System.out.println();
-            System.out.printf("%s: %s\n", opName, matchingRuleListArr[pos]);
-        }
+            matchingRuleListArr[pos] = localMatches;
+            System.out.printf("%s: %s\n", opName, localMatches);
+        });
 
         BigInteger universalRuleNr = null;
         if (matchingRuleListArr.length > 0) {
-            Set<BigInteger> intersection = new HashSet<>(matchingRuleListArr[0]);
-            for (int i = 1; i < matchingRuleListArr.length; i++) {
-                intersection.retainAll(matchingRuleListArr[i]);
+            final Set<BigInteger> intersection = new HashSet<>(matchingRuleListArr[0]);
+            for (int matchingRuleListArrPos = 1; matchingRuleListArrPos < matchingRuleListArr.length; matchingRuleListArrPos++) {
+                intersection.retainAll(matchingRuleListArr[matchingRuleListArrPos]);
             }
             if (!intersection.isEmpty()) {
                 universalRuleNr = intersection.iterator().next();
