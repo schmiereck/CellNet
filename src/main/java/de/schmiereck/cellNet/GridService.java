@@ -34,4 +34,56 @@ public class GridService {
         }
         return outputArr;
     }
+
+    /**
+     * Erzeugt ein neues Grid mit der nächsten RuleNr-Kombination für alle Zellen.
+     * Die RuleNrs werden wie ein Zähler im 256er-System behandelt (0-255).
+     * Gibt null zurück, wenn die letzte Kombination (alle 255) erreicht wurde.
+     */
+    public static Grid createNextRuleCombinationGrid(final Grid grid) {
+        final int sizeX = grid.sizeX;
+        final int sizeY = grid.sizeY;
+        final Grid nextGrid = new Grid(sizeX, sizeY);
+        nextGrid.cellArr = new Cell[sizeY][sizeX];
+        // Zellen kopieren
+        for (int y = 0; y < sizeY; y++) {
+            for (int x = 0; x < sizeX; x++) {
+                Cell orig = grid.cellArr[y][x];
+                Cell copy = new Cell();
+                copy.ruleNr = orig.ruleNr;
+                copy.value = 0; // value zurücksetzen
+                nextGrid.cellArr[y][x] = copy;
+            }
+        }
+        // RuleNr-Kombination inkrementieren (wie Zähler)
+        int carry = 1;
+        outer:
+        for (int y = 0; y < sizeY; y++) {
+            for (int x = 0; x < sizeX; x++) {
+                Cell cell = nextGrid.cellArr[y][x];
+                if (carry == 0) break outer;
+                int newRuleNr = cell.ruleNr + carry;
+                if (newRuleNr > 255) {
+                    cell.ruleNr = 0;
+                    carry = 1;
+                } else {
+                    cell.ruleNr = newRuleNr;
+                    carry = 0;
+                }
+            }
+        }
+        // Wenn nach dem Inkrementieren alle Zellen 0 sind, war die letzte Kombination erreicht
+        boolean allZero = true;
+        for (int y = 0; y < sizeY; y++) {
+            for (int x = 0; x < sizeX; x++) {
+                if (nextGrid.cellArr[y][x].ruleNr != 0) {
+                    allZero = false;
+                    break;
+                }
+            }
+            if (!allZero) break;
+        }
+        if (allZero) return null;
+        return nextGrid;
+    }
 }

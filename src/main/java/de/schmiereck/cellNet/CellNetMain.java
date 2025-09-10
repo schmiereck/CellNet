@@ -1,5 +1,6 @@
 package de.schmiereck.cellNet;
 
+import java.math.BigInteger;
 import java.util.*;
 
 public class CellNetMain {
@@ -8,9 +9,12 @@ public class CellNetMain {
     public static void main(String[] args) {
         System.out.printf("CellNet V1.0.0%n");
 
-        findTestRuleNumbers();
-        //findBooleanRuleNumbers();
-        //findCountRuleNumbers();
+        //findTestRuleNumbers2(); // Works.
+        findBooleanRuleNumbers2(); // Works.
+
+        //findTestRuleNumbers(); // Find nothing.
+        //findCountRuleNumbers(); // Find nothing.
+        //findBooleanRuleNumbers(); // Works.
 
         //final Grid grid = GridService.createGrid(3, 4, 0);
         //
@@ -18,6 +22,21 @@ public class CellNetMain {
         //GridService.submitInput(grid, inputArr);
         //CellNetService.calcGrid(grid);
         //final int[] outputArr = GridService.retieveOutput(grid);
+    }
+
+    private static void findTestRuleNumbers2() {
+        final int maxSearchSize = 256;
+        //final int maxSearchSize = 64;
+
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("OR-Test",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                //new int[][] { { 0, 0 }, { 1, 0 }, { 1, 0 }, { 1, 0 } }));
+                new int[][] { { 0, 0 }, { 0, 1 }, { 0, 1 }, { 0, 1 } }));
+
+        findUniversalRuleNr2(maxSearchSize, opOutputArr);
     }
 
     private static void findTestRuleNumbers() {
@@ -66,10 +85,41 @@ public class CellNetMain {
         findUniversalRuleNr(maxSearchSize, opOutputArr);
     }
 
+    private static void findBooleanRuleNumbers2() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("AND", new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 0 }, { 0 }, { 0 }, { 1 } }));
+        opOutputArr.add(new OpOutput("OR",  new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 0 }, { 1 }, { 1 }, { 1 } }));
+        opOutputArr.add(new OpOutput("NAND",new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 1 }, { 1 }, { 1 }, { 0 } }));
+        opOutputArr.add(new OpOutput("NOR", new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 1 }, { 0 }, { 0 }, { 0 } }));
+        opOutputArr.add(new OpOutput("XOR", new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 0 }, { 1 }, { 1 }, { 0 } }));
+        opOutputArr.add(new OpOutput("XNOR",new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 1 }, { 0 }, { 0 }, { 1 } }));
+
+        findUniversalRuleNr2(maxSearchSize, opOutputArr);
+    }
+
     private static void findUniversalRuleNr(int maxSearchSize, List<OpOutput> opOutputArr) {
         for (int sizeX = 2; sizeX <= maxSearchSize; sizeX++) {
             for (int sizeY = 2; sizeY <= maxSearchSize; sizeY++) {
                 final Integer universalRuleNr = findRuleNumbers(opOutputArr, sizeX, sizeY);
+                if (Objects.nonNull(universalRuleNr)) {
+                    System.out.printf("Universelle RuleNr (für alle Operationen gültig): %d%n", universalRuleNr);
+                    break;
+                } else {
+                    System.out.println("Keine universelle RuleNr gefunden, die für alle Operationen gültig ist.");
+                }
+            }
+        }
+    }
+
+    private static void findUniversalRuleNr2(int maxSearchSize, List<OpOutput> opOutputArr) {
+        for (int sizeX = 2; sizeX <= maxSearchSize; sizeX++) {
+            for (int sizeY = 2; sizeY <= maxSearchSize; sizeY++) {
+                final BigInteger universalRuleNr = findRuleNumbers2(opOutputArr, sizeX, sizeY);
                 if (Objects.nonNull(universalRuleNr)) {
                     System.out.printf("Universelle RuleNr (für alle Operationen gültig): %d%n", universalRuleNr);
                     break;
@@ -146,6 +196,80 @@ public class CellNetMain {
         //}
         if (matchingRuleListArr.length > 0) {
             Set<Integer> intersection = new HashSet<>(matchingRuleListArr[0]);
+            for (int i = 1; i < matchingRuleListArr.length; i++) {
+                intersection.retainAll(matchingRuleListArr[i]);
+            }
+            if (!intersection.isEmpty()) {
+                universalRuleNr = intersection.iterator().next();
+            }
+        }
+        return universalRuleNr;
+    }
+
+    private static BigInteger findRuleNumbers2(final List<OpOutput> opOutputArr, final int sizeX, final int sizeY) {
+        System.out.printf("---------------------------------------------------------%n");
+        final BigInteger maxRuleNr = BigInteger.valueOf(256).pow(sizeX * sizeY);
+        System.out.printf("size: %d, %d (maxRuleNr: %,d)%n", sizeX, sizeY, maxRuleNr);
+
+        // Fortschritts-Divisor nur einmal berechnen
+        BigInteger progressDivisor = maxRuleNr.divide(BigInteger.valueOf(80L));
+        if (progressDivisor.equals(BigInteger.ZERO)) {
+            progressDivisor = BigInteger.ONE;
+        }
+
+        final List<BigInteger>[] matchingRuleListArr = new ArrayList[opOutputArr.size()];
+
+        for (int pos = 0; pos < opOutputArr.size(); pos++) {
+            final OpOutput opOutput = opOutputArr.get(pos);
+
+            final String opName = opOutput.opName();
+            final int[][] expectedOutputArrArr = opOutput.expectedOutputArrArr();
+            // Eingabekombinationen
+            final int[][] inputArrArr = opOutput.inputArrArr;
+
+            matchingRuleListArr[pos] = new ArrayList<>();
+
+            System.out.println("|0%----------------|25%----------------|50%----------------|75-----------------|%100%");
+
+            final int startRuleNr = 0;
+            BigInteger ruleNr = BigInteger.ZERO;
+            Grid grid = GridService.createGrid(sizeX, sizeY, startRuleNr);
+
+            while (Objects.nonNull(grid)) {
+                boolean allInputsMatch = true;
+                inputArrArrPosLoop:
+                for (int inputArrArrPos = 0; inputArrArrPos < inputArrArr.length; inputArrArrPos++) {
+                    final int[] inputArr = inputArrArr[inputArrArrPos];
+
+                    GridService.submitInput(grid, inputArr);
+                    CellNetService.calcGrid(grid);
+                    final int[] outputArr = GridService.retieveOutput(grid);
+
+                    final int[] expectedOutputArr = expectedOutputArrArr[inputArrArrPos];
+                    for (int outputArrPos = 0; outputArrPos < expectedOutputArr.length; outputArrPos++) {
+                        if (outputArr[outputArrPos] != expectedOutputArr[outputArrPos]) {
+                            allInputsMatch = false;
+                            break inputArrArrPosLoop;
+                        }
+                    }
+                }
+                if (allInputsMatch) {
+                    matchingRuleListArr[pos].add(ruleNr);
+                }
+                grid = GridService.createNextRuleCombinationGrid(grid);
+                // Fortschrittsanzeige mit BigInteger
+                if (ruleNr.mod(progressDivisor).equals(BigInteger.ZERO)) {
+                    System.out.print("*");
+                }
+                ruleNr = ruleNr.add(BigInteger.ONE);
+            }
+            System.out.println();
+            System.out.printf("%s: %s\n", opName, matchingRuleListArr[pos]);
+        }
+
+        BigInteger universalRuleNr = null;
+        if (matchingRuleListArr.length > 0) {
+            Set<BigInteger> intersection = new HashSet<>(matchingRuleListArr[0]);
             for (int i = 1; i < matchingRuleListArr.length; i++) {
                 intersection.retainAll(matchingRuleListArr[i]);
             }
