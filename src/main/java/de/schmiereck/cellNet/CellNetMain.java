@@ -199,11 +199,11 @@ public class CellNetMain {
 
     private static BigInteger findRuleNumbers2(final List<OpOutput> opOutputArr, final int sizeX, final int sizeY) {
         System.out.printf("---------------------------------------------------------%n");
-        final BigInteger maxRuleNr = BigInteger.valueOf(256).pow(sizeX * sizeY);
-        System.out.printf("size: %d, %d (maxRuleNr: %,d)%n", sizeX, sizeY, maxRuleNr);
+        final BigInteger maxGridNr = BigInteger.valueOf(256).pow(sizeX * sizeY);
+        System.out.printf("size: %d, %d (maxGridNr: %,d)%n", sizeX, sizeY, maxGridNr);
 
         final BigInteger progressDivisor;
-        final BigInteger tmpProgressDivisor = maxRuleNr.divide(BigInteger.valueOf(80L));
+        final BigInteger tmpProgressDivisor = maxGridNr.divide(BigInteger.valueOf(80L));
         if (tmpProgressDivisor.equals(BigInteger.ZERO)) {
             progressDivisor = BigInteger.ONE;
         } else {
@@ -211,7 +211,7 @@ public class CellNetMain {
         }
 
         @SuppressWarnings("unchecked")
-        final List<BigInteger>[] matchingRuleListArr = new ArrayList[opOutputArr.size()];
+        final List<BigInteger>[] matchingGridNrListArr = new ArrayList[opOutputArr.size()];
 
         System.out.println("|0%----------------|25%----------------|50%----------------|75-----------------|%100%");
 
@@ -221,13 +221,13 @@ public class CellNetMain {
             final String opName = opOutput.opName();
             final int[][] expectedOutputArrArr = opOutput.expectedOutputArrArr();
             final int[][] inputArrArr = opOutput.inputArrArr;
-            final List<BigInteger> localMatches = new ArrayList<>();
+            final List<BigInteger> localMatcheGridNrList = new ArrayList<>();
 
             // Hinweis: Die eigentliche Kombinations-Iteration ist weiterhin sequentiell pro Operation.
+            BigInteger gridNr = BigInteger.ZERO;
             final int startRuleNr = 0;
-            BigInteger ruleNr = BigInteger.ZERO;
             Grid grid = GridService.createGrid(sizeX, sizeY, startRuleNr);
-            long printed = 0L;
+
             while (Objects.nonNull(grid)) {
                 boolean allInputsMatch = true;
                 inputArrArrPosLoop:
@@ -245,33 +245,32 @@ public class CellNetMain {
                     }
                 }
                 if (allInputsMatch) {
-                    localMatches.add(ruleNr);
+                    localMatcheGridNrList.add(gridNr);
                 }
                 grid = GridService.createNextRuleCombinationGrid(grid);
 
-                if (ruleNr.mod(progressDivisor).equals(BigInteger.ZERO)) {
+                if (gridNr.mod(progressDivisor).equals(BigInteger.ZERO)) {
                     System.out.print("*");
-                    printed++;
                 }
 
-                ruleNr = ruleNr.add(BigInteger.ONE);
+                gridNr = gridNr.add(BigInteger.ONE);
             }
             System.out.println();
-            matchingRuleListArr[pos] = localMatches;
-            System.out.printf("%s: %s\n", opName, localMatches);
+            matchingGridNrListArr[pos] = localMatcheGridNrList;
+            System.out.printf("%s: %s\n", opName, localMatcheGridNrList);
         });
 
-        BigInteger universalRuleNr = null;
-        if (matchingRuleListArr.length > 0) {
-            final Set<BigInteger> intersection = new HashSet<>(matchingRuleListArr[0]);
-            for (int matchingRuleListArrPos = 1; matchingRuleListArrPos < matchingRuleListArr.length; matchingRuleListArrPos++) {
-                intersection.retainAll(matchingRuleListArr[matchingRuleListArrPos]);
+        BigInteger universalGridNr = null;
+        if (matchingGridNrListArr.length > 0) {
+            final Set<BigInteger> intersection = new HashSet<>(matchingGridNrListArr[0]);
+            for (int matchingGridNrListArrPos = 1; matchingGridNrListArrPos < matchingGridNrListArr.length; matchingGridNrListArrPos++) {
+                intersection.retainAll(matchingGridNrListArr[matchingGridNrListArrPos]);
             }
             if (!intersection.isEmpty()) {
-                universalRuleNr = intersection.iterator().next();
+                universalGridNr = intersection.iterator().next();
             }
         }
-        return universalRuleNr;
+        return universalGridNr;
     }
 
     private static void printGridForOperation(String opName, int ruleNr, int[][] inputArrArr, int[][] expectedOutputArrArr, int sizeX, int sizeY) {
