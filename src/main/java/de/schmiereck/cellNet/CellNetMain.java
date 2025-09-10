@@ -232,20 +232,11 @@ public class CellNetMain {
 
         System.out.println("|0%----------------|25%----------------|50%----------------|75-----------------|%100%");
 
-        // Fortschrittszähler für parallele Streams
         final AtomicLong progressCounter = new AtomicLong(0);
         final int numThreads = Math.max(2, Runtime.getRuntime().availableProcessors());
-        final BigInteger blockSize = BigInteger.valueOf(100_000L); // Blockgröße für die Parallelisierung
-        final BigInteger[] blockStarts;
-        {
-            List<BigInteger> starts = new ArrayList<>();
-            for (BigInteger i = BigInteger.ZERO; i.compareTo(maxGridNr) < 0; i = i.add(blockSize)) {
-                starts.add(i);
-            }
-            blockStarts = starts.toArray(new BigInteger[0]);
-        }
+        final BigInteger blockSize = BigInteger.valueOf(100_000L);
 
-        ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(numThreads);
+        final ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(numThreads);
 
         IntStream.range(0, opOutputArr.size()).forEach(pos -> {
             final OpOutput opOutput = opOutputArr.get(pos);
@@ -254,39 +245,49 @@ public class CellNetMain {
             final int[][] inputArrArr = opOutput.inputArrArr;
             final List<BigInteger> localMatcheGridNrList = java.util.Collections.synchronizedList(new ArrayList<>());
             final List<Future<?>> futures = new ArrayList<>();
+            final Object blockLock = new Object();
+            final BigInteger[] nextBlockStart = new BigInteger[] { BigInteger.ZERO };
 
-            for (BigInteger blockStart : blockStarts) {
-                final BigInteger start = blockStart;
-                final BigInteger end = start.add(blockSize).min(maxGridNr);
+            for (int t = 0; t < numThreads; t++) {
                 futures.add(executor.submit(() -> {
-                    for (BigInteger gridNr = start; gridNr.compareTo(end) < 0; gridNr = gridNr.add(BigInteger.ONE)) {
-                        Grid grid = GridService.createGridForCombination(sizeX, sizeY, gridNr);
-                        boolean allInputsMatch = true;
-                        inputArrArrPosLoop:
-                        for (int inputArrArrPos = 0; inputArrArrPos < inputArrArr.length; inputArrArrPos++) {
-                            final int[] inputArr = inputArrArr[inputArrArrPos];
-                            GridService.submitInput(grid, inputArr);
-                            CellNetService.calcGrid(grid);
-                            final int[] outputArr = GridService.retieveOutput(grid);
-                            final int[] expectedOutputArr = expectedOutputArrArr[inputArrArrPos];
-                            for (int outputArrPos = 0; outputArrPos < expectedOutputArr.length; outputArrPos++) {
-                                if (outputArr[outputArrPos] != expectedOutputArr[outputArrPos]) {
-                                    allInputsMatch = false;
-                                    break inputArrArrPosLoop;
+                    while (true) {
+                        final BigInteger start, end;
+                        synchronized (blockLock) {
+                            if (nextBlockStart[0].compareTo(maxGridNr) >= 0) break;
+                            start = nextBlockStart[0];
+                            end = start.add(blockSize).min(maxGridNr);
+                            nextBlockStart[0] = end;
+                        }
+                        for (BigInteger gridNr = start; gridNr.compareTo(end) < 0; gridNr = gridNr.add(BigInteger.ONE)) {
+                            final Grid grid = GridService.createGridForCombination(sizeX, sizeY, gridNr);
+                            boolean allInputsMatch = true;
+                            inputArrArrPosLoop:
+                            for (int inputArrArrPos = 0; inputArrArrPos < inputArrArr.length; inputArrArrPos++) {
+                                final int[] inputArr = inputArrArr[inputArrArrPos];
+                                GridService.submitInput(grid, inputArr);
+                                CellNetService.calcGrid(grid);
+                                final int[] outputArr = GridService.retieveOutput(grid);
+
+                                final int[] expectedOutputArr = expectedOutputArrArr[inputArrArrPos];
+                                for (int outputArrPos = 0; outputArrPos < expectedOutputArr.length; outputArrPos++) {
+                                    if (outputArr[outputArrPos] != expectedOutputArr[outputArrPos]) {
+                                        allInputsMatch = false;
+                                        break inputArrArrPosLoop;
+                                    }
                                 }
                             }
-                        }
-                        if (allInputsMatch) {
-                            localMatcheGridNrList.add(gridNr);
-                            synchronized (System.out) {
-                                System.out.println(gridNr); // TODO remove this line!
+                            if (allInputsMatch) {
+                                localMatcheGridNrList.add(gridNr);
+                                synchronized (System.out) {
+                                    System.out.println(gridNr); // Gefundene Regel-Kombination ausgeben
+                                }
                             }
-                        }
-                        // Fortschrittsanzeige
-                        long current = progressCounter.incrementAndGet();
-                        if (progressDivisor.compareTo(BigInteger.valueOf(1)) > 0 && (current % progressDivisor.longValue() == 0)) {
-                            synchronized (System.out) {
-                                System.out.print("*");
+                            // Fortschrittsanzeige
+                            long current = progressCounter.incrementAndGet();
+                            if (progressDivisor.compareTo(BigInteger.valueOf(1)) > 0 && (current % progressDivisor.longValue() == 0)) {
+                                synchronized (System.out) {
+                                    System.out.print("*");
+                                }
                             }
                         }
                     }
