@@ -2,6 +2,9 @@ package de.schmiereck.cellNet;
 
 import java.math.BigInteger;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
 
 public class CellNetMain {
@@ -230,52 +233,74 @@ public class CellNetMain {
         System.out.println("|0%----------------|25%----------------|50%----------------|75-----------------|%100%");
 
         // Fortschrittszähler für parallele Streams
-        final java.util.concurrent.atomic.AtomicLong progressCounter = new java.util.concurrent.atomic.AtomicLong(0);
-        final long progressDivisorLong = progressDivisor.longValue();
-        final long maxGridNrLong = maxGridNr.longValue();
+        final AtomicLong progressCounter = new AtomicLong(0);
+        final int numThreads = Math.max(2, Runtime.getRuntime().availableProcessors());
+        final BigInteger blockSize = BigInteger.valueOf(100_000L); // Blockgröße für die Parallelisierung
+        final BigInteger[] blockStarts;
+        {
+            List<BigInteger> starts = new ArrayList<>();
+            for (BigInteger i = BigInteger.ZERO; i.compareTo(maxGridNr) < 0; i = i.add(blockSize)) {
+                starts.add(i);
+            }
+            blockStarts = starts.toArray(new BigInteger[0]);
+        }
 
-        IntStream.range(0, opOutputArr.size()).parallel().forEach(pos -> {
+        ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(numThreads);
+
+        IntStream.range(0, opOutputArr.size()).forEach(pos -> {
             final OpOutput opOutput = opOutputArr.get(pos);
             final String opName = opOutput.opName();
             final int[][] expectedOutputArrArr = opOutput.expectedOutputArrArr();
             final int[][] inputArrArr = opOutput.inputArrArr;
             final List<BigInteger> localMatcheGridNrList = java.util.Collections.synchronizedList(new ArrayList<>());
+            final List<Future<?>> futures = new ArrayList<>();
 
-            // Parallele Iteration über alle möglichen gridNr (nur für kleine maxGridNr sinnvoll)
-            java.util.stream.LongStream.range(0, maxGridNrLong).parallel().forEach(i -> {
-                BigInteger gridNr = BigInteger.valueOf(i);
-                Grid grid = GridService.createGridForCombination(sizeX, sizeY, gridNr);
-                boolean allInputsMatch = true;
-                inputArrArrPosLoop:
-                for (int inputArrArrPos = 0; inputArrArrPos < inputArrArr.length; inputArrArrPos++) {
-                    final int[] inputArr = inputArrArr[inputArrArrPos];
-                    GridService.submitInput(grid, inputArr);
-                    CellNetService.calcGrid(grid);
-                    final int[] outputArr = GridService.retieveOutput(grid);
-                    final int[] expectedOutputArr = expectedOutputArrArr[inputArrArrPos];
-                    for (int outputArrPos = 0; outputArrPos < expectedOutputArr.length; outputArrPos++) {
-                        if (outputArr[outputArrPos] != expectedOutputArr[outputArrPos]) {
-                            allInputsMatch = false;
-                            break inputArrArrPosLoop;
+            for (BigInteger blockStart : blockStarts) {
+                final BigInteger start = blockStart;
+                final BigInteger end = start.add(blockSize).min(maxGridNr);
+                futures.add(executor.submit(() -> {
+                    for (BigInteger gridNr = start; gridNr.compareTo(end) < 0; gridNr = gridNr.add(BigInteger.ONE)) {
+                        Grid grid = GridService.createGridForCombination(sizeX, sizeY, gridNr);
+                        boolean allInputsMatch = true;
+                        inputArrArrPosLoop:
+                        for (int inputArrArrPos = 0; inputArrArrPos < inputArrArr.length; inputArrArrPos++) {
+                            final int[] inputArr = inputArrArr[inputArrArrPos];
+                            GridService.submitInput(grid, inputArr);
+                            CellNetService.calcGrid(grid);
+                            final int[] outputArr = GridService.retieveOutput(grid);
+                            final int[] expectedOutputArr = expectedOutputArrArr[inputArrArrPos];
+                            for (int outputArrPos = 0; outputArrPos < expectedOutputArr.length; outputArrPos++) {
+                                if (outputArr[outputArrPos] != expectedOutputArr[outputArrPos]) {
+                                    allInputsMatch = false;
+                                    break inputArrArrPosLoop;
+                                }
+                            }
+                        }
+                        if (allInputsMatch) {
+                            localMatcheGridNrList.add(gridNr);
+                            synchronized (System.out) {
+                                System.out.println(gridNr); // TODO remove this line!
+                            }
+                        }
+                        // Fortschrittsanzeige
+                        long current = progressCounter.incrementAndGet();
+                        if (progressDivisor.compareTo(BigInteger.valueOf(1)) > 0 && (current % progressDivisor.longValue() == 0)) {
+                            synchronized (System.out) {
+                                System.out.print("*");
+                            }
                         }
                     }
-                }
-                if (allInputsMatch) {
-                    localMatcheGridNrList.add(gridNr);
-                    System.out.println(gridNr);
-                }
-                // Fortschrittsanzeige
-                long current = progressCounter.incrementAndGet();
-                if (current % progressDivisorLong == 0) {
-                    synchronized (System.out) {
-                        System.out.print("*");
-                    }
-                }
-            });
+                }));
+            }
+            // Auf alle Blöcke warten
+            for (Future<?> f : futures) {
+                try { f.get(); } catch (Exception e) { throw new RuntimeException(e); }
+            }
             System.out.println();
             matchingGridNrListArr[pos] = localMatcheGridNrList;
             System.out.printf("%s: %s\n", opName, localMatcheGridNrList);
         });
+        executor.shutdown();
 
         BigInteger universalGridNr = null;
         if (matchingGridNrListArr.length > 0) {
