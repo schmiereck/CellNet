@@ -15,23 +15,19 @@ public class S3CellNetMain {
     public static void main(String[] args) {
         System.out.printf("CellNet V1.0.0%n");
 
-        //findTestRuleNumbers2(); // Works.
-        findBooleanRuleNumbers2(); // Works.
+        //findTestRuleNumbersI2O1(); // Works.
+        //findTestRuleNumbersI2O2(); // Find nothing.
+        //findTestRuleNumbersI2O2Deep(); // Works.
 
-        //findTestRuleNumbers(); // Find nothing.
-        //findCountRuleNumbers2(); // Find nothing.
-        //findCountRuleNumbers3(); // Find nothing.
-        //findBooleanRuleNumbers(); // Works.
+        findBooleanRuleNumbersI2O1(); // Works.
+        //findBooleanRuleNumbersI2O2(); // Works.
+        //findBooleanRuleNumbersI2O1Deep(); // Works.
 
-        //final Grid grid = GridService.createGrid(3, 4, 0);
-        //
-        //final int[] inputArr = { 0, 0 };
-        //GridService.submitInput(grid, inputArr);
-        //CellNetService.calcGrid(grid);
-        //final int[] outputArr = GridService.retieveOutput(grid);
+        //findCountRuleNumbersI2O2Deep(); // Find nothing.
+        //findCountRuleNumbersI3O3Deep(); // Find nothing.
     }
 
-    private static void findTestRuleNumbers2() {
+    private static void findTestRuleNumbersI2O2Deep() {
         final int maxSearchSize = 256;
         //final int maxSearchSize = 64;
 
@@ -41,10 +37,23 @@ public class S3CellNetMain {
                 new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
                 new int[][] { { 0, 0 }, { 0, 1 }, { 0, 1 }, { 0, 1 } }));
 
-        findUniversalRuleNr2(maxSearchSize, opOutputArr, 2, 1);
+        findUniversalRuleNrDeep(maxSearchSize, opOutputArr, 2, 1);
     }
 
-    private static void findTestRuleNumbers() {
+    private static void findTestRuleNumbersI2O1() {
+        final int maxSearchSize = 256;
+        //final int maxSearchSize = 64;
+
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("OR-Test",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 0 }, { 1 }, { 1 }, { 1 } }));
+
+        findUniversalRuleNr(maxSearchSize, opOutputArr);
+    }
+
+    private static void findTestRuleNumbersI2O2() {
         final int maxSearchSize = 256;
         //final int maxSearchSize = 64;
 
@@ -57,7 +66,7 @@ public class S3CellNetMain {
         findUniversalRuleNr(maxSearchSize, opOutputArr);
     }
 
-    private static void findCountRuleNumbers2() {
+    private static void findCountRuleNumbersI2O2Deep() {
         //final int maxSearchSize = 256;
         final int maxSearchSize = 64;
 
@@ -67,10 +76,10 @@ public class S3CellNetMain {
                 new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
                 new int[][] { { 0, 1 }, { 1, 0 }, { 1, 1 }, { 0, 0 } }));
 
-        findUniversalRuleNr2(maxSearchSize, opOutputArr, 2, 1);
+        findUniversalRuleNrDeep(maxSearchSize, opOutputArr, 2, 1);
     }
 
-    private static void findCountRuleNumbers3() {
+    private static void findCountRuleNumbersI3O3Deep() {
         //final int maxSearchSize = 256;
         final int maxSearchSize = 64;
 
@@ -80,10 +89,27 @@ public class S3CellNetMain {
                 new int[][] { { 0, 0, 0 }, { 0, 0, 1 }, { 0, 1, 0 }, { 0, 1, 1 },    { 1, 0, 0 }, { 1, 0, 1 }, { 1, 1, 0 }, { 1, 1, 1 } },
                 new int[][] { { 0, 0, 1 }, { 0, 1, 0 }, { 0, 1, 1 }, { 1, 0, 0 },    { 1, 0, 1 }, { 1, 1, 0 }, { 1, 1, 1 }, { 0, 0, 0 } }));
 
-        findUniversalRuleNr2(maxSearchSize, opOutputArr, 3, 1);
+        findUniversalRuleNrDeep(maxSearchSize, opOutputArr, 3, 1);
     }
 
-    private static void findBooleanRuleNumbers() {
+    private static void findBooleanRuleNumbersI2O1() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("AND", new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 0 }, { 0 }, { 0 }, { 1 } }));
+        opOutputArr.add(new OpOutput("OR",  new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 0 }, { 1 }, { 1 }, { 1 } }));
+        opOutputArr.add(new OpOutput("NAND",new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 1 }, { 1 }, { 1 }, { 0 } }));
+        opOutputArr.add(new OpOutput("NOR", new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 1 }, { 0 }, { 0 }, { 0 } }));
+        opOutputArr.add(new OpOutput("XOR", new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 0 }, { 1 }, { 1 }, { 0 } }));
+        opOutputArr.add(new OpOutput("XNOR",new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 1 }, { 0 }, { 0 }, { 1 } }));
+
+        findUniversalRuleNr(maxSearchSize, opOutputArr);
+    }
+
+    private static void findBooleanRuleNumbersI2O2() {
         //final int maxSearchSize = 256;
         final int maxSearchSize = 8;
 
@@ -100,7 +126,7 @@ public class S3CellNetMain {
         findUniversalRuleNr(maxSearchSize, opOutputArr);
     }
 
-    private static void findBooleanRuleNumbers2() {
+    private static void findBooleanRuleNumbersI2O1Deep() {
         //final int maxSearchSize = 256;
         final int maxSearchSize = 8;
 
@@ -114,7 +140,7 @@ public class S3CellNetMain {
         opOutputArr.add(new OpOutput("XOR", new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 0 }, { 1 }, { 1 }, { 0 } }));
         opOutputArr.add(new OpOutput("XNOR",new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 1 }, { 0 }, { 0 }, { 1 } }));
 
-        findUniversalRuleNr2(maxSearchSize, opOutputArr, 2, 1);
+        findUniversalRuleNrDeep(maxSearchSize, opOutputArr, 2, 1);
     }
 
     private static void findUniversalRuleNr(int maxSearchSize, List<OpOutput> opOutputArr) {
@@ -131,11 +157,11 @@ public class S3CellNetMain {
         }
     }
 
-    private static void findUniversalRuleNr2(int maxSearchSize, List<OpOutput> opOutputArr,
-                                             final int startSizeX, final int startSizeY) {
+    private static void findUniversalRuleNrDeep(int maxSearchSize, List<OpOutput> opOutputArr,
+                                                final int startSizeX, final int startSizeY) {
         for (int sizeX = startSizeX; sizeX <= maxSearchSize; sizeX++) {
             for (int sizeY = startSizeY; sizeY <= maxSearchSize; sizeY++) {
-                final BigInteger universalRuleNr = findRuleNumbers2(opOutputArr, sizeX, sizeY);
+                final BigInteger universalRuleNr = findRuleNumbersDeep(opOutputArr, sizeX, sizeY);
                 if (Objects.nonNull(universalRuleNr)) {
                     System.out.printf("Universelle RuleNr (für alle Operationen gültig): %d%n", universalRuleNr);
                     break;
@@ -216,7 +242,7 @@ public class S3CellNetMain {
         return universalRuleNr;
     }
 
-    private static BigInteger findRuleNumbers2(final List<OpOutput> opOutputArr, final int sizeX, final int sizeY) {
+    private static BigInteger findRuleNumbersDeep(final List<OpOutput> opOutputArr, final int sizeX, final int sizeY) {
         System.out.printf("---------------------------------------------------------%n");
         // sizeY = Anzahl Regel-Zeilen (ohne Input-Layer)
         final int totalSizeY = sizeY + 1;
