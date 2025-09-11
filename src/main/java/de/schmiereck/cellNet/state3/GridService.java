@@ -5,10 +5,12 @@ public class GridService {
     public static final int MAX_RULE_NR = 255;
 
     public static Grid createGrid(final int sizeX, final int sizeY, final int ruleNr) {
-        final Grid grid = new Grid(sizeX, sizeY);
-        grid.cellArrArr = new Cell[sizeY][sizeX];
+        // sizeY = Anzahl der Regel-Zeilen (ohne Input-Layer)
+        final int totalSizeY = sizeY + 1;
+        final Grid grid = new Grid(sizeX, totalSizeY);
+        grid.cellArrArr = new Cell[totalSizeY][sizeX];
         for (int x = 0; x < sizeX; x++) {
-            for (int y = 0; y < sizeY; y++) {
+            for (int y = 0; y < totalSizeY; y++) {
                 final Cell cell = new Cell();
                 cell.ruleNr = ruleNr;
                 cell.value = 0;

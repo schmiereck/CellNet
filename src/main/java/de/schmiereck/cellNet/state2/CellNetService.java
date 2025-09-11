@@ -11,23 +11,24 @@ public class CellNetService {
                 // Nachbarn bestimmen (Randbehandlung: Wrap-Around)
                 final int leftIndex = (x > 0) ? x - 1 : grid.sizeX - 1;
                 final int rightIndex = (x < grid.sizeX - 1) ? x + 1 : 0;
+
+                //final int leftValue = parentCellArr[leftIndex].value;
+                //final int middleValue = parentCellArr[x].value;
+                //final int rightValue = parentCellArr[rightIndex].value;
                 final int leftValue = parentCellArr[leftIndex].value;
-                final int middleValue = parentCellArr[x].value;
-                final int rightValue = parentCellArr[rightIndex].value;
+                final int rightValue = parentCellArr[x].value;
+
                 final int ruleNr = calcCell.ruleNr;
 
-                final int newValue = calcNewValue(leftValue, middleValue, rightValue, ruleNr);
-
-                calcCell.value = newValue;
+                calcCell.value = calcNewValue(leftValue, rightValue, ruleNr);
             }
         }
     }
 
-    private static int calcNewValue(final int leftValue, final int middleValue, final int rightValue, final int ruleNr) {
+    private static int calcNewValue(final int leftValue, final int rightValue, final int ruleNr) {
         // Nachbarschaft als Bitmuster
-        final int pattern = (leftValue << 2) | (middleValue << 1) | rightValue;
+        final int pattern = (leftValue << 1) | rightValue;
         // Regel anwenden: das Bit an der Position 'pattern' gibt den neuen Wert
-        final int newValue = (ruleNr >> pattern) & 1;
-        return newValue;
+        return (ruleNr >> pattern) & 1;
     }
 }

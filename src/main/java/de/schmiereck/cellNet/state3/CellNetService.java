@@ -16,9 +16,7 @@ public class CellNetService {
                 final int rightValue = parentCellArr[rightIndex].value;
                 final int ruleNr = calcCell.ruleNr;
 
-                final int newValue = calcNewValue(leftValue, middleValue, rightValue, ruleNr);
-
-                calcCell.value = newValue;
+                calcCell.value = calcNewValue(leftValue, middleValue, rightValue, ruleNr);
             }
         }
     }
@@ -27,7 +25,6 @@ public class CellNetService {
         // Nachbarschaft als Bitmuster
         final int pattern = (leftValue << 2) | (middleValue << 1) | rightValue;
         // Regel anwenden: das Bit an der Position 'pattern' gibt den neuen Wert
-        final int newValue = (ruleNr >> pattern) & 1;
-        return newValue;
+        return (ruleNr >> pattern) & 1;
     }
 }

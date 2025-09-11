@@ -1,13 +1,15 @@
 package de.schmiereck.cellNet.state2;
 
 public class GridService {
-    public static final int RULE_COUNT = 256;
-    public static final int MAX_RULE_NR = 255;
+    public static final int RULE_COUNT = 16;
+    public static final int MAX_RULE_NR = 15;
 
     public static Grid createGrid(final int sizeX, final int sizeY, final int ruleNr) {
-        final Grid grid = new Grid(sizeX, sizeY);
-        grid.rowArr = new Row[sizeY];
-        for (int y = 0; y < sizeY; y++) {
+        // sizeY = Anzahl der Regel-Zeilen (ohne Input-Layer)
+        final int totalSizeY = sizeY + 1;
+        final Grid grid = new Grid(sizeX, totalSizeY);
+        grid.rowArr = new Row[totalSizeY];
+        for (int y = 0; y < totalSizeY; y++) {
             grid.rowArr[y] = new Row(sizeX);
             grid.rowArr[y].cellArr = new Cell[sizeX];
 
