@@ -19,8 +19,9 @@ public class S2CellNetMain {
         //findTestRuleNumbersI2O2Deep(); // Works.
 
         //findBooleanRuleNumbersI2O1(); // Works.
+        findBooleanRuleNumbersI2O1xxx(); //
         //findBooleanRuleNumbersI2O2(); // Works.
-        findBooleanRuleNumbersI2O1Deep(); // Works.
+        //findBooleanRuleNumbersI2O1Deep(); // Works.
 
         //findCountRuleNumbersI2O2Deep(); // Find nothing.
         //findCountRuleNumbersI3O3Deep(); // Find nothing.
@@ -115,6 +116,22 @@ public class S2CellNetMain {
         findUniversalRuleNr(maxSearchSize, opOutputArr, 2, 2);
     }
 
+    private static void findBooleanRuleNumbersI2O1xxx() {
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("AND", new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 0 }, { 0 }, { 0 }, { 1 } }));
+        opOutputArr.add(new OpOutput("OR",  new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 0 }, { 1 }, { 1 }, { 1 } }));
+        opOutputArr.add(new OpOutput("NAND",new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 1 }, { 1 }, { 1 }, { 0 } }));
+        opOutputArr.add(new OpOutput("NOR", new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 1 }, { 0 }, { 0 }, { 0 } }));
+        opOutputArr.add(new OpOutput("XOR", new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 0 }, { 1 }, { 1 }, { 0 } }));
+        opOutputArr.add(new OpOutput("XNOR",new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 1 }, { 0 }, { 0 }, { 1 } }));
+
+        final int[] rowSizeXArr = new int[] { 2, 2, 1 };
+        final int sizeY = 2;
+        findUniversalRuleNrDeep(opOutputArr, rowSizeXArr, sizeY);
+    }
+
     private static void findBooleanRuleNumbersI2O2() {
         //final int maxSearchSize = 256;
         final int maxSearchSize = 8;
@@ -165,11 +182,15 @@ public class S2CellNetMain {
         }
     }
 
-    private static void findUniversalRuleNrDeep(int maxSearchSize, List<OpOutput> opOutputArr,
+    private static void findUniversalRuleNrDeep(final int maxSearchSize, List<OpOutput> opOutputArr,
                                                 final int startSizeX, final int startSizeY) {
         for (int sizeX = startSizeX; sizeX <= maxSearchSize; sizeX++) {
             for (int sizeY = startSizeY; sizeY <= maxSearchSize; sizeY++) {
-                final List<BigInteger>[] matchingGridNrListArr = findGridNrListDeep(opOutputArr, sizeX, sizeY);
+                final int[] rowSizeXArr = new int[sizeY];
+                for (int rowPos = 0; rowPos < sizeY; rowPos++) {
+                    rowSizeXArr[rowPos] = sizeX;
+                }
+                final List<BigInteger>[] matchingGridNrListArr = findGridNrListDeep(opOutputArr, rowSizeXArr, sizeY);
                 final BigInteger universalGridNr = findUniversalMatchingGridNrDeep(matchingGridNrListArr);
                 if (Objects.nonNull(universalGridNr)) {
                     System.out.printf("Universelle GridNr (für alle Operationen gültig): %d%n", universalGridNr);
@@ -178,6 +199,17 @@ public class S2CellNetMain {
                     System.out.println("Keine universelle GridNr gefunden, die für alle Operationen gültig ist.");
                 }
             }
+        }
+    }
+
+    private static void findUniversalRuleNrDeep(List<OpOutput> opOutputArr,
+                                                final int[] rowSizeXArr, final int sizeY) {
+        final List<BigInteger>[] matchingGridNrListArr = findGridNrListDeep(opOutputArr, rowSizeXArr, sizeY);
+        final BigInteger universalGridNr = findUniversalMatchingGridNrDeep(matchingGridNrListArr);
+        if (Objects.nonNull(universalGridNr)) {
+            System.out.printf("Universelle GridNr (für alle Operationen gültig): %d%n", universalGridNr);
+        } else {
+            System.out.println("Keine universelle GridNr gefunden, die für alle Operationen gültig ist.");
         }
     }
 
@@ -241,11 +273,13 @@ public class S2CellNetMain {
         return matchingRuleListArr;
     }
 
-    private static List<BigInteger>[] findGridNrListDeep(final List<OpOutput> opOutputArr, final int sizeX, final int sizeY) {
+    private static List<BigInteger>[] findGridNrListDeep(final List<OpOutput> opOutputArr,
+                                                         final int[] rowSizeXArr, final int sizeY) {
         System.out.printf("---------------------------------------------------------%n");
         // sizeY = Anzahl Regel-Zeilen (ohne Input-Layer)
-        final BigInteger maxGridNr = BigInteger.valueOf(GridService.RULE_COUNT).pow(sizeX * sizeY);
-        System.out.printf("size: %d, %d+1 (maxGridNr: %,d)%n", sizeX, sizeY, maxGridNr);
+        final int cellCount = Arrays.stream(rowSizeXArr).sum();
+        final BigInteger maxGridNr = BigInteger.valueOf(GridService.RULE_COUNT).pow(cellCount);
+        System.out.printf("size: %s, %d+1 (maxGridNr: %,d)%n", Arrays.toString(rowSizeXArr), sizeY, maxGridNr);
 
         final BigInteger progressDivisor;
         final BigInteger tmpProgressDivisor = maxGridNr.divide(BigInteger.valueOf(80L));
@@ -289,7 +323,7 @@ public class S2CellNetMain {
                             nextBlockStart[0] = end;
                         }
                         for (BigInteger gridNr = start; gridNr.compareTo(end) < 0; gridNr = gridNr.add(BigInteger.ONE)) {
-                            final Grid grid = GridService.createGridForCombination(sizeX, sizeY, gridNr);
+                            final Grid grid = GridService.createGridForCombination(rowSizeXArr, sizeY, gridNr);
                             boolean allInputsMatch = true;
                             inputArrArrPosLoop:
                             for (int inputArrArrPos = 0; inputArrArrPos < inputArrArr.length; inputArrArrPos++) {

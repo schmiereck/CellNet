@@ -4,19 +4,22 @@ public class CellNetService {
 
     public static void calcGrid(final Grid grid) {
         for (int y = 1; y < grid.sizeY; y++) {
-            final Cell[] parentCellArr = grid.rowArr[y - 1].cellArr;
-            final Cell[] cellArr = grid.rowArr[y].cellArr;
-            for (int x = 0; x < grid.sizeX; x++) {
-                final Cell calcCell = cellArr[x];
+            final Row parentRow = grid.rowArr[y - 1];
+            final Cell[] parentCellArr = parentRow.cellArr;
+            final Row actRow = grid.rowArr[y];
+            final Cell[] actCellArr = actRow.cellArr;
+            for (int x = 0; x < actRow.sizeX; x++) {
+                final Cell calcCell = actCellArr[x];
                 // Nachbarn bestimmen (Randbehandlung: Wrap-Around)
-                final int leftIndex = (x > 0) ? x - 1 : grid.sizeX - 1;
-                final int rightIndex = (x < grid.sizeX - 1) ? x + 1 : 0;
+                final int parentLeftX = (x < parentRow.sizeX) ? x : x % parentRow.sizeX;
+                final int rightX = x + 1;
+                final int parentRightX = (rightX < parentRow.sizeX - 1) ? rightX : rightX % parentRow.sizeX;
 
                 //final int leftValue = parentCellArr[leftIndex].value;
                 //final int middleValue = parentCellArr[x].value;
-                //final int rightValue = parentCellArr[rightIndex].value;
-                final int leftValue = parentCellArr[leftIndex].value;
-                final int rightValue = parentCellArr[x].value;
+                //final int rightValue = parentCellArr[rightX].value;
+                final int leftValue = parentCellArr[parentLeftX].value;
+                final int rightValue = parentCellArr[parentRightX].value;
 
                 final int ruleNr = calcCell.ruleNr;
 
