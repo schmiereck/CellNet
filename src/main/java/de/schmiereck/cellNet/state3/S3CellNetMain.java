@@ -146,7 +146,8 @@ public class S3CellNetMain {
     private static void findUniversalRuleNr(int maxSearchSize, List<OpOutput> opOutputArr) {
         for (int sizeX = 2; sizeX <= maxSearchSize; sizeX++) {
             for (int sizeY = 2; sizeY <= maxSearchSize; sizeY++) {
-                final Integer universalRuleNr = findRuleNumbers(opOutputArr, sizeX, sizeY);
+                final List<Integer>[] matchingRuleListArr = findRuleNumbers(opOutputArr, sizeX, sizeY);
+                final Integer universalRuleNr = findUniversalMatchingRuleNr(matchingRuleListArr);
                 if (Objects.nonNull(universalRuleNr)) {
                     System.out.printf("Universelle RuleNr (für alle Operationen gültig): %d%n", universalRuleNr);
                     break;
@@ -161,12 +162,13 @@ public class S3CellNetMain {
                                                 final int startSizeX, final int startSizeY) {
         for (int sizeX = startSizeX; sizeX <= maxSearchSize; sizeX++) {
             for (int sizeY = startSizeY; sizeY <= maxSearchSize; sizeY++) {
-                final BigInteger universalRuleNr = findRuleNumbersDeep(opOutputArr, sizeX, sizeY);
-                if (Objects.nonNull(universalRuleNr)) {
-                    System.out.printf("Universelle RuleNr (für alle Operationen gültig): %d%n", universalRuleNr);
+                final List<BigInteger>[] matchingGridNrListArr = findGridNrListDeep(opOutputArr, sizeX, sizeY);
+                final BigInteger universalGridNr = findUniversalMatchingGridNrDepp(matchingGridNrListArr);
+                if (Objects.nonNull(universalGridNr)) {
+                    System.out.printf("Universelle GridNr (für alle Operationen gültig): %d%n", universalGridNr);
                     break;
                 } else {
-                    System.out.println("Keine universelle RuleNr gefunden, die für alle Operationen gültig ist.");
+                    System.out.println("Keine universelle GridNr gefunden, die für alle Operationen gültig ist.");
                 }
             }
         }
@@ -174,7 +176,7 @@ public class S3CellNetMain {
 
     record OpOutput(String opName, int[][] inputArrArr, int[][] expectedOutputArrArr) {}
 
-    private static Integer findRuleNumbers(final List<OpOutput> opOutputArr, final int sizeX, final int sizeY) {
+    private static  List<Integer>[] findRuleNumbers(final List<OpOutput> opOutputArr, final int sizeX, final int sizeY) {
         System.out.printf("---------------------------------------------------------%n");
         System.out.printf("size: %d, %d%n", sizeX, sizeY);
 
@@ -229,20 +231,10 @@ public class S3CellNetMain {
                 }
             }
         }
-        Integer universalRuleNr = null;
-        if (matchingRuleListArr.length > 0) {
-            Set<Integer> intersection = new HashSet<>(matchingRuleListArr[0]);
-            for (int i = 1; i < matchingRuleListArr.length; i++) {
-                intersection.retainAll(matchingRuleListArr[i]);
-            }
-            if (!intersection.isEmpty()) {
-                universalRuleNr = intersection.iterator().next();
-            }
-        }
-        return universalRuleNr;
+        return matchingRuleListArr;
     }
 
-    private static BigInteger findRuleNumbersDeep(final List<OpOutput> opOutputArr, final int sizeX, final int sizeY) {
+    private static List<BigInteger>[] findGridNrListDeep(final List<OpOutput> opOutputArr, final int sizeX, final int sizeY) {
         System.out.printf("---------------------------------------------------------%n");
         // sizeY = Anzahl Regel-Zeilen (ohne Input-Layer)
         final int totalSizeY = sizeY + 1;
@@ -335,6 +327,24 @@ public class S3CellNetMain {
         });
         executor.shutdown();
 
+        return matchingGridNrListArr;
+    }
+
+    private static Integer findUniversalMatchingRuleNr(List<Integer>[] matchingRuleListArr) {
+        Integer universalRuleNr = null;
+        if (matchingRuleListArr.length > 0) {
+            Set<Integer> intersection = new HashSet<>(matchingRuleListArr[0]);
+            for (int i = 1; i < matchingRuleListArr.length; i++) {
+                intersection.retainAll(matchingRuleListArr[i]);
+            }
+            if (!intersection.isEmpty()) {
+                universalRuleNr = intersection.iterator().next();
+            }
+        }
+        return universalRuleNr;
+    }
+
+    private static BigInteger findUniversalMatchingGridNrDepp(List<BigInteger>[] matchingGridNrListArr) {
         BigInteger universalGridNr = null;
         if (matchingGridNrListArr.length > 0) {
             final Set<BigInteger> intersection = new HashSet<>(matchingGridNrListArr[0]);
