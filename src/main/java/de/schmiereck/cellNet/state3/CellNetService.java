@@ -4,8 +4,8 @@ public class CellNetService {
 
     public static void calcGrid(final Grid grid) {
         for (int y = 1; y < grid.sizeY; y++) {
-            final Cell[] parentCellArr = grid.cellArr[y - 1];
-            final Cell[] cellArr = grid.cellArr[y];
+            final Cell[] parentCellArr = grid.cellArrArr[y - 1];
+            final Cell[] cellArr = grid.cellArrArr[y];
             for (int x = 0; x < grid.sizeX; x++) {
                 final Cell calcCell = cellArr[x];
                 // Nachbarn bestimmen (Randbehandlung: Wrap-Around)

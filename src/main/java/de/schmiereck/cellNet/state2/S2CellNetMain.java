@@ -7,18 +7,19 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
 
-public class CellNetMain {
+public class S2CellNetMain {
     public static boolean showExtraResults = false;
+    public static boolean ShowFoundGridNr = false;
 
     public static void main(String[] args) {
         System.out.printf("CellNet V1.0.0%n");
 
         //findTestRuleNumbers2(); // Works.
-        //findBooleanRuleNumbers2(); // Works.
+        findBooleanRuleNumbers2(); // Works.
 
         //findTestRuleNumbers(); // Find nothing.
         //findCountRuleNumbers2(); // Find nothing.
-        findCountRuleNumbers3(); // Find nothing.
+        //findCountRuleNumbers3(); // Find nothing.
         //findBooleanRuleNumbers(); // Works.
 
         //final Grid grid = GridService.createGrid(3, 4, 0);
@@ -112,7 +113,7 @@ public class CellNetMain {
         opOutputArr.add(new OpOutput("XOR", new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 0 }, { 1 }, { 1 }, { 0 } }));
         opOutputArr.add(new OpOutput("XNOR",new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 1 }, { 0 }, { 0 }, { 1 } }));
 
-        findUniversalRuleNr2(maxSearchSize, opOutputArr, 2, 2);
+        findUniversalRuleNr2(maxSearchSize, opOutputArr, 2, 1);
     }
 
     private static void findUniversalRuleNr(int maxSearchSize, List<OpOutput> opOutputArr) {
@@ -162,7 +163,7 @@ public class CellNetMain {
 
             final List<Integer> matchingRules = new ArrayList<>();
             // Prüfe alle 256 Regeln parallel
-            IntStream.rangeClosed(0, 255).parallel().forEach(ruleNr -> {
+            IntStream.rangeClosed(0, GridService.MAX_RULE_NR).parallel().forEach(ruleNr -> {
                 boolean allInputsMatch = true;
                 for (int inputArrArrPos = 0; inputArrArrPos < inputArrArr.length && allInputsMatch; inputArrArrPos++) {
                     final int[] inputArr = inputArrArr[inputArrArrPos];
@@ -218,7 +219,7 @@ public class CellNetMain {
         System.out.printf("---------------------------------------------------------%n");
         // sizeY = Anzahl Regel-Zeilen (ohne Input-Layer)
         final int totalSizeY = sizeY + 1;
-        final BigInteger maxGridNr = BigInteger.valueOf(256).pow(sizeX * sizeY);
+        final BigInteger maxGridNr = BigInteger.valueOf(GridService.RULE_COUNT).pow(sizeX * sizeY);
         System.out.printf("size: %d, %d+1 (maxGridNr: %,d)%n", sizeX, sizeY, maxGridNr);
 
         final BigInteger progressDivisor;
@@ -230,7 +231,7 @@ public class CellNetMain {
         }
 
         @SuppressWarnings("unchecked")
-        final List<BigInteger>[] matchingGridNrListArr = new ArrayList[opOutputArr.size()];
+        final List<BigInteger>[] matchingGridNrListArr = new List[opOutputArr.size()];
 
         System.out.println("|0%----------------|25%----------------|50%----------------|75-----------------|%100%");
 
@@ -280,8 +281,10 @@ public class CellNetMain {
                             }
                             if (allInputsMatch) {
                                 localMatcheGridNrList.add(gridNr);
-                                synchronized (System.out) {
-                                    System.out.println(gridNr); // Gefundene Regel-Kombination ausgeben
+                                if (ShowFoundGridNr) {
+                                    synchronized (System.out) {
+                                        System.out.println(gridNr); // Gefundene Regel-Kombination ausgeben
+                                    }
                                 }
                             }
                             // Fortschrittsanzeige
@@ -336,7 +339,7 @@ public class CellNetMain {
     private static void printGrid(Grid grid) {
         for (int y = 0; y < grid.sizeY; y++) {
             for (int x = 0; x < grid.sizeX; x++) {
-                System.out.print(grid.cellArr[y][x].value + " ");
+                System.out.print(grid.rowArr[y].cellArr[x].value + " ");
             }
             System.out.println();
         }

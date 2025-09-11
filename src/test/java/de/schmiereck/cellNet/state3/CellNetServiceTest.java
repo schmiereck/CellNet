@@ -11,16 +11,16 @@ public class CellNetServiceTest {
         int sizeX = 5;
         int sizeY = 3;
         Grid grid = new Grid(sizeX, sizeY);
-        grid.cellArr = new Cell[sizeY][sizeX];
+        grid.cellArrArr = new Cell[sizeY][sizeX];
         for (int y = 0; y < sizeY; y++) {
             for (int x = 0; x < sizeX; x++) {
-                grid.cellArr[y][x] = new Cell();
-                grid.cellArr[y][x].ruleNr = ruleNr;
-                grid.cellArr[y][x].value = 0;
+                grid.cellArrArr[y][x] = new Cell();
+                grid.cellArrArr[y][x].ruleNr = ruleNr;
+                grid.cellArrArr[y][x].value = 0;
             }
         }
         // Startwert: nur die mittlere Zelle in der ersten Zeile ist 1
-        grid.cellArr[0][sizeX/2].value = 1;
+        grid.cellArrArr[0][sizeX/2].value = 1;
 
         CellNetService.calcGrid(grid);
 
@@ -35,7 +35,7 @@ public class CellNetServiceTest {
         };
         for (int y = 0; y < sizeY; y++) {
             for (int x = 0; x < sizeX; x++) {
-                assertEquals(expected[y][x], grid.cellArr[y][x].value, "Fehler bei Zeile "+y+", Spalte "+x);
+                assertEquals(expected[y][x], grid.cellArrArr[y][x].value, "Fehler bei Zeile "+y+", Spalte "+x);
             }
         }
     }

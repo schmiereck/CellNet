@@ -1,15 +1,21 @@
 package de.schmiereck.cellNet.state2;
 
 public class GridService {
+    public static final int RULE_COUNT = 256;
+    public static final int MAX_RULE_NR = 255;
+
     public static Grid createGrid(final int sizeX, final int sizeY, final int ruleNr) {
         final Grid grid = new Grid(sizeX, sizeY);
-        grid.cellArr = new Cell[sizeY][sizeX];
-        for (int x = 0; x < sizeX; x++) {
-            for (int y = 0; y < sizeY; y++) {
+        grid.rowArr = new Row[sizeY];
+        for (int y = 0; y < sizeY; y++) {
+            grid.rowArr[y] = new Row(sizeX);
+            grid.rowArr[y].cellArr = new Cell[sizeX];
+
+            for (int x = 0; x < sizeX; x++) {
                 final Cell cell = new Cell();
                 cell.ruleNr = ruleNr;
                 cell.value = 0;
-                grid.cellArr[y][x] = cell;
+                grid.rowArr[y].cellArr[x] = cell;
             }
         }
         return grid;
@@ -18,7 +24,7 @@ public class GridService {
     public static void submitInput(final Grid grid, final int[] inputArr) {
         for (int x = 0; x < inputArr.length; x++) {
             if (x < grid.sizeX) {
-                final Cell cell = grid.cellArr[0][x];
+                final Cell cell = grid.rowArr[0].cellArr[x];
                 cell.value = inputArr[x];
             } else {
                 throw new RuntimeException("Input array to big.");
@@ -29,7 +35,7 @@ public class GridService {
     public static int[] retieveOutput(final Grid grid) {
         final int[] outputArr = new int[grid.sizeX];
         for (int x = 0; x < grid.sizeX; x++) {
-            final Cell cell = grid.cellArr[grid.sizeY - 1][x];
+            final Cell cell = grid.rowArr[grid.sizeY - 1].cellArr[x];
             outputArr[x] = cell.value;
         }
         return outputArr;
@@ -44,15 +50,17 @@ public class GridService {
         final int sizeX = grid.sizeX;
         final int sizeY = grid.sizeY;
         final Grid nextGrid = new Grid(sizeX, sizeY);
-        nextGrid.cellArr = new Cell[sizeY][sizeX];
+        grid.rowArr = new Row[sizeY];
         // Zellen kopieren
         for (int y = 0; y < sizeY; y++) {
+            grid.rowArr[y] = new Row(sizeX);
+            grid.rowArr[y].cellArr = new Cell[sizeX];
             for (int x = 0; x < sizeX; x++) {
-                Cell orig = grid.cellArr[y][x];
+                Cell orig = grid.rowArr[y].cellArr[x];
                 Cell copy = new Cell();
                 copy.ruleNr = orig.ruleNr;
                 copy.value = 0; // value zurücksetzen
-                nextGrid.cellArr[y][x] = copy;
+                nextGrid.rowArr[y].cellArr[x] = copy;
             }
         }
         // RuleNr-Kombination inkrementieren (wie Zähler)
@@ -60,10 +68,10 @@ public class GridService {
         outer:
         for (int y = 0; y < sizeY; y++) {
             for (int x = 0; x < sizeX; x++) {
-                Cell cell = nextGrid.cellArr[y][x];
+                Cell cell = nextGrid.rowArr[y].cellArr[x];
                 if (carry == 0) break outer;
                 int newRuleNr = cell.ruleNr + carry;
-                if (newRuleNr > 255) {
+                if (newRuleNr > MAX_RULE_NR) {
                     cell.ruleNr = 0;
                     carry = 1;
                 } else {
@@ -76,7 +84,7 @@ public class GridService {
         boolean allZero = true;
         for (int y = 0; y < sizeY; y++) {
             for (int x = 0; x < sizeX; x++) {
-                if (nextGrid.cellArr[y][x].ruleNr != 0) {
+                if (nextGrid.rowArr[y].cellArr[x].ruleNr != 0) {
                     allZero = false;
                     break;
                 }
@@ -96,20 +104,22 @@ public class GridService {
         // sizeY = Anzahl der Regel-Zeilen (ohne Input-Layer)
         final int totalSizeY = sizeY + 1;
         final Grid grid = new Grid(sizeX, totalSizeY);
-        grid.cellArr = new Cell[totalSizeY][sizeX];
+        grid.rowArr = new Row[totalSizeY];
         java.math.BigInteger nr = gridNr;
         for (int y = 0; y < totalSizeY; y++) {
+            grid.rowArr[y] = new Row(sizeX);
+            grid.rowArr[y].cellArr = new Cell[sizeX];
             for (int x = 0; x < sizeX; x++) {
                 final Cell cell = new Cell();
                 if (y == 0) {
                     cell.ruleNr = 0; // Input-Layer
                 } else {
-                    int ruleNr = nr.mod(java.math.BigInteger.valueOf(256)).intValue();
+                    int ruleNr = nr.mod(java.math.BigInteger.valueOf(RULE_COUNT)).intValue();
                     cell.ruleNr = ruleNr;
-                    nr = nr.divide(java.math.BigInteger.valueOf(256));
+                    nr = nr.divide(java.math.BigInteger.valueOf(RULE_COUNT));
                 }
                 cell.value = 0;
-                grid.cellArr[y][x] = cell;
+                grid.rowArr[y].cellArr[x] = cell;
             }
         }
         return grid;
