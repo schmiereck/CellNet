@@ -1,4 +1,4 @@
-package de.schmiereck.cellNet;
+package de.schmiereck.cellNet.state3;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;

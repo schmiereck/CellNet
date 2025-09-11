@@ -1,6 +1,4 @@
-package de.schmiereck.cellNet;
-
-import java.math.BigInteger;
+package de.schmiereck.cellNet.state3;
 
 public class GridService {
     public static Grid createGrid(final int sizeX, final int sizeY, final int ruleNr) {

@@ -1,4 +1,4 @@
-package de.schmiereck.cellNet;
+package de.schmiereck.cellNet.state3;
 
 public class Cell {
     public int ruleNr;

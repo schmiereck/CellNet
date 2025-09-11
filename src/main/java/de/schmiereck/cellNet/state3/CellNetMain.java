@@ -1,4 +1,4 @@
-package de.schmiereck.cellNet;
+package de.schmiereck.cellNet.state3;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -13,7 +13,7 @@ public class CellNetMain {
     public static void main(String[] args) {
         System.out.printf("CellNet V1.0.0%n");
 
-        //findTestRuleNumbers2(); // Works.
+        findTestRuleNumbers2(); // Works.
         //findBooleanRuleNumbers2(); // Works.
 
         //findTestRuleNumbers(); // Find nothing.
@@ -39,7 +39,7 @@ public class CellNetMain {
                 new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
                 new int[][] { { 0, 0 }, { 0, 1 }, { 0, 1 }, { 0, 1 } }));
 
-        findUniversalRuleNr2(maxSearchSize, opOutputArr, 2, 2);
+        findUniversalRuleNr2(maxSearchSize, opOutputArr, 2, 1);
     }
 
     private static void findTestRuleNumbers() {
