@@ -400,8 +400,9 @@ public class S2CellNetMain {
 
     private static void printGrid(Grid grid) {
         for (int y = 0; y < grid.sizeY; y++) {
-            for (int x = 0; x < grid.sizeX; x++) {
-                System.out.print(grid.rowArr[y].cellArr[x].value + " ");
+            final Row row = grid.rowArr[y];
+            for (int x = 0; x < row.sizeX; x++) {
+                System.out.print(row.cellArr[x].value + " ");
             }
             System.out.println();
         }
