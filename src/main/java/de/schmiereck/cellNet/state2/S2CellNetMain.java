@@ -127,7 +127,7 @@ public class S2CellNetMain {
         opOutputArr.add(new OpOutput("XOR", new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 0 }, { 1 }, { 1 }, { 0 } }));
         opOutputArr.add(new OpOutput("XNOR",new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[][] { { 1 }, { 0 }, { 0 }, { 1 } }));
 
-        final int[] rowSizeXArr = new int[] { 2, 2, 1 };
+        final int[] rowSizeXArr = new int[] { 2, 2, 2, 1 };
         final int sizeY = 2;
         findUniversalRuleNrDeep(opOutputArr, rowSizeXArr, sizeY);
     }
@@ -432,9 +432,17 @@ public class S2CellNetMain {
         System.out.println();
     }
 
-    private static void printGrid(Grid grid) {
+    static void printGrid(Grid grid) {
+        int lastShift = 0;
         for (int y = 0; y < grid.sizeY; y++) {
             final Row row = grid.rowArr[y];
+            if (y > 0) {
+                final Row parenRow = grid.rowArr[y - 1];
+                if (parenRow.sizeX > row.sizeX) {
+                    lastShift += parenRow.sizeX - row.sizeX;
+                    System.out.print(" ".repeat(lastShift));
+                }
+            }
             for (int x = 0; x < row.sizeX; x++) {
                 System.out.print(row.cellArr[x].value + " ");
             }
