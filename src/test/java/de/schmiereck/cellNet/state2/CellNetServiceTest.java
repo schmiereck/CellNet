@@ -74,7 +74,7 @@ public class CellNetServiceTest {
 
         CellNetService.calcGrid(grid);
 
-        S2CellNetMain.printGrid(grid);
+        S2CellNetMain.printGridValue(grid);
 
         // Erwartete Werte für Rule 3 (binär 0011):
         // Nur für Muster 00 (0) und 01 (1) ergibt sich eine 1, sonst 0.
