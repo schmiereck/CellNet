@@ -8,6 +8,9 @@ This concept has significant implications in various fields, including physics, 
 
 Cellular automata (CA) are discrete, abstract computational systems that have found application in various fields, including mathematics, computer science, physics, and biology. They consist of a grid of cells, each of which can be in one of a finite number of states. The state of each cell at the next time step is determined by a set of rules that consider the current state of the cell and the states of its neighboring cells.
 
+## Application Architecture
+see [AGENTS.md](AGENTS.md)
+
 ## CellNet State-3
 Classical cellular automata -  
 one-dimensional,  
