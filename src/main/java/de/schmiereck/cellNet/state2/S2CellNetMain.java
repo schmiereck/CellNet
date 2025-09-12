@@ -307,7 +307,7 @@ public class S2CellNetMain {
             final int[][] expectedOutputArrArr = opOutput.expectedOutputArrArr();
             final int[][] inputArrArr = opOutput.inputArrArr;
 
-            final List<Integer> matchingRules = new ArrayList<>();
+            final List<Integer> matchingRuleNrList = new ArrayList<>();
             // Prüfe alle 256 Regeln parallel
             IntStream.rangeClosed(0, GridService.MAX_RULE_NR).parallel().forEach(ruleNr -> {
                 boolean allInputsMatch = true;
@@ -326,13 +326,14 @@ public class S2CellNetMain {
                     }
                 }
                 if (allInputsMatch) {
-                    synchronized (matchingRules) { // Sammelliste schützen
-                        matchingRules.add(ruleNr);
+                    synchronized (matchingRuleNrList) { // Sammelliste schützen
+                        matchingRuleNrList.add(ruleNr);
                     }
                 }
             });
-            matchingRuleListArr[pos] = matchingRules;
-            System.out.printf("%s: %s\n", opName, matchingRules);
+            matchingRuleNrList.sort(Comparator.comparingInt(ruleNr -> ruleNr));
+            matchingRuleListArr[pos] = matchingRuleNrList;
+            System.out.printf("%s: %s\n", opName, matchingRuleNrList);
         });
 
         if (showExtraResults) {

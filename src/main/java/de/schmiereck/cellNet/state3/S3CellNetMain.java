@@ -21,11 +21,24 @@ public class S3CellNetMain {
         //findTestRuleNumbersI2O2(); // Find nothing.
         //findTestRuleNumbersI2O2Deep(); // Works.
 
+        //findBooleanAndRuleNumbersI2O1(); // AND: size: 2, 2 [37, 39, 45, 47, 53, 55, 61, 63, 101, 103, 109, 111, 117, 119, 125, 127, 128, 130, 136, 138, 144, 146, 152, 154, 192, 194, 200, 202, 208, 210, 216, 218]
+        //findBooleanOrRuleNumbersI2O1(); // OR: size: 2, 2 [1, 3, 9, 11, 17, 19, 25, 27, 65, 67, 73, 75, 81, 83, 89, 91, 164, 166, 172, 174, 180, 182, 188, 190, 228, 230, 236, 238, 244, 246, 252, 254]
+        //findBooleanNandRuleNumbersI2O1(); // NAND: size: 2, 3 [37, 39, 45, 47, 53, 55, 61, 63, 101, 103, 109, 111, 117, 119, 125, 127]
+        //findBooleanNorRuleNumbersI2O1(); // NOR: size: 2, 3 [1, 3, 9, 11, 17, 19, 25, 27, 65, 67, 73, 75, 81, 83, 89, 91]
+        //findBooleanXorRuleNumbersI2O1(); // XOR: size: 3, 2 [9, 33, 41, 60, 61, 65, 105, 110, 111, 122, 123, 124, 125, 150, 188, 190]
+        //findBooleanXnorRuleNumbersI2O1(); // XNOR: size: 3, 2 [131, 135, 147, 149, 195, 203, 227, 235]
         //findBooleanRuleNumbersI2O1(); // Works. No universal Solution.
         //findSimpleBooleanRuleNumbersI2O1(); // Works. No universal Solution.
+
+        findBooleanAndRuleNumbersI2O1Deep(); //
+        findBooleanOrRuleNumbersI2O1Deep(); //
+        findBooleanNandRuleNumbersI2O1(); //
+        findBooleanNorRuleNumbersI2O1(); //
+        findBooleanXorRuleNumbersI2O1(); //
+        findBooleanXnorRuleNumbersI2O1(); //
         //findBooleanRuleNumbersI2O1Deep(); //
 
-        findCountRuleNumbersI2O2Deep(); // Fing GridNr: 11044
+        //findCountRuleNumbersI2O2Deep(); // Fing GridNr: 11044
         //findCountRuleNumbersI3O3Deep(); // Runs hours...
     }
 
@@ -126,6 +139,96 @@ public class S3CellNetMain {
         findUniversalRuleNr(maxSearchSize, opOutputArr, 3 + 2, 2);
     }
 
+    private static void findBooleanAndRuleNumbersI2O1() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("AND",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 0 }, { 0 }, { 0 }, { 1 } }));
+
+        findUniversalRuleNr(maxSearchSize, opOutputArr, 2, 2);
+    }
+
+    private static void findBooleanOrRuleNumbersI2O1() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("OR",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 0 }, { 1 }, { 1 }, { 1 } }));
+
+        findUniversalRuleNr(maxSearchSize, opOutputArr, 2, 2);
+    }
+
+    private static void findBooleanNandRuleNumbersI2O1() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("NAND",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 1 }, { 1 }, { 1 }, { 0 } }));
+
+        findUniversalRuleNr(maxSearchSize, opOutputArr, 2, 2);
+    }
+
+    private static void findBooleanNorRuleNumbersI2O1() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("NOR",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 1 }, { 0 }, { 0 }, { 0 } }));
+
+        findUniversalRuleNr(maxSearchSize, opOutputArr, 2, 2);
+    }
+
+    private static void findBooleanXorRuleNumbersI2O1() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("XOR",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 0 }, { 1 }, { 1 }, { 0 } }));
+
+        findUniversalRuleNr(maxSearchSize, opOutputArr, 2, 2);
+    }
+
+    private static void findBooleanXnorRuleNumbersI2O1() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("XNOR",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 1 }, { 0 }, { 0 }, { 1 } }));
+
+        findUniversalRuleNr(maxSearchSize, opOutputArr, 2, 2);
+    }
+
     private static void findSimpleBooleanRuleNumbersI2O1() {
         //final int maxSearchSize = 256;
         final int maxSearchSize = 8;
@@ -148,6 +251,96 @@ public class S3CellNetMain {
                 new int[][] { { 1 }, { 0 }, { 0 }, { 0 } }));
 
         findUniversalRuleNr(maxSearchSize, opOutputArr, 2 + 2, 2);
+    }
+
+    private static void findBooleanAndRuleNumbersI2O1Deep() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("AND",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 0 }, { 0 }, { 0 }, { 1 } }));
+
+        findUniversalRuleNrDeep(maxSearchSize, opOutputArr, 2, 2);
+    }
+
+    private static void findBooleanOrRuleNumbersI2O1Deep() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("OR",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 0 }, { 1 }, { 1 }, { 1 } }));
+
+        findUniversalRuleNrDeep(maxSearchSize, opOutputArr, 2, 2);
+    }
+
+    private static void findBooleanNandRuleNumbersI2O1Deep() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("NAND",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 1 }, { 1 }, { 1 }, { 0 } }));
+
+        findUniversalRuleNrDeep(maxSearchSize, opOutputArr, 2, 2);
+    }
+
+    private static void findBooleanNorRuleNumbersI2O1Deep() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("NOR",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 1 }, { 0 }, { 0 }, { 0 } }));
+
+        findUniversalRuleNrDeep(maxSearchSize, opOutputArr, 2, 2);
+    }
+
+    private static void findBooleanXorRuleNumbersI2O1Deep() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("XOR",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 0 }, { 1 }, { 1 }, { 0 } }));
+
+        findUniversalRuleNrDeep(maxSearchSize, opOutputArr, 2, 2);
+    }
+
+    private static void findBooleanXnorRuleNumbersI2O1Deep() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("XNOR",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 1 }, { 0 }, { 0 }, { 1 } }));
+
+        findUniversalRuleNrDeep(maxSearchSize, opOutputArr, 2, 2);
     }
 
     private static void findBooleanRuleNumbersI2O1Deep() {
@@ -235,7 +428,7 @@ public class S3CellNetMain {
             final int[][] expectedOutputArrArr = opOutput.expectedOutputArrArr();
             final int[][] inputArrArr = opOutput.inputArrArr;
 
-            final List<Integer> matchingRules = new ArrayList<>();
+            final List<Integer> matchingRuleNrList = new ArrayList<>();
             // Prüfe alle 256 Regeln parallel
             IntStream.rangeClosed(0, GridService.MAX_RULE_NR).parallel().forEach(ruleNr -> {
                 boolean allInputsMatch = true;
@@ -254,13 +447,14 @@ public class S3CellNetMain {
                     }
                 }
                 if (allInputsMatch) {
-                    synchronized (matchingRules) { // Sammelliste schützen
-                        matchingRules.add(ruleNr);
+                    synchronized (matchingRuleNrList) { // Sammelliste schützen
+                        matchingRuleNrList.add(ruleNr);
                     }
                 }
             });
-            matchingRuleListArr[pos] = matchingRules;
-            System.out.printf("%s: %s\n", opName, matchingRules);
+            matchingRuleNrList.sort(Comparator.comparingInt(ruleNr -> ruleNr));
+            matchingRuleListArr[pos] = matchingRuleNrList;
+            System.out.printf("%s: %s\n", opName, matchingRuleNrList);
         });
 
         if (showExtraResults) {
