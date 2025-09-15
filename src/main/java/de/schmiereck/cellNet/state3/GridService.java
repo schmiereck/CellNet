@@ -1,5 +1,7 @@
 package de.schmiereck.cellNet.state3;
 
+import java.math.BigInteger;
+
 public class GridService {
     public static final int RULE_COUNT = 256;
     public static final int MAX_RULE_NR = 255;
@@ -102,21 +104,58 @@ public class GridService {
         final int totalSizeY = sizeY + 1;
         final Grid grid = new Grid(sizeX, totalSizeY);
         grid.cellArrArr = new Cell[totalSizeY][sizeX];
-        java.math.BigInteger nr = gridNr;
+        java.math.BigInteger usedCountNr = gridNr;
         for (int y = 0; y < totalSizeY; y++) {
             for (int x = 0; x < sizeX; x++) {
                 final Cell cell = new Cell();
                 if (y == 0) {
                     cell.ruleNr = 0; // Input-Layer
                 } else {
-                    int ruleNr = nr.mod(java.math.BigInteger.valueOf(RULE_COUNT)).intValue();
-                    cell.ruleNr = ruleNr;
-                    nr = nr.divide(java.math.BigInteger.valueOf(RULE_COUNT));
+                    cell.ruleNr = calcRuleNrByCountNr(usedCountNr);
+                    usedCountNr = calcNextCountNr(usedCountNr);
                 }
                 cell.value = 0;
                 grid.cellArrArr[y][x] = cell;
             }
         }
         return grid;
+    }
+
+    public static BigInteger calcMaxGridNr(int sizeX, int sizeY) {
+        return BigInteger.valueOf(GridService.RULE_COUNT).pow(sizeX * sizeY);
+    }
+
+    private static int calcRuleNrByCountNr(BigInteger countNr) {
+        return countNr.mod(BigInteger.valueOf(RULE_COUNT)).intValue();
+    }
+
+    private static BigInteger calcNextCountNr(BigInteger countNr) {
+        return countNr.divide(BigInteger.valueOf(RULE_COUNT));
+    }
+
+    public static void main(String[] args) {
+        testCheckGeneratedRuleCombinations();
+    }
+
+    private static void testCheckGeneratedRuleCombinations() {
+        final int sizeX = 2;
+        final int sizeY = 1;
+
+        final BigInteger maxGridNr = GridService.calcMaxGridNr(sizeX, sizeY);
+
+        BigInteger gridCount = BigInteger.valueOf(0L);
+        while (gridCount.compareTo(maxGridNr) < 0) {
+            System.out.printf("GridNr: %6d ", gridCount);
+            final Grid grid = GridService.createGridForCombination(sizeX, sizeY, gridCount);
+
+            for (int y = 0; y < grid.sizeY; y++) {
+                for (int x = 0; x < grid.sizeX; x++) {
+                    final Cell cell = grid.cellArrArr[y][x];
+                    System.out.printf("%3d ", cell.ruleNr);
+                }
+            }
+            gridCount = gridCount.add(BigInteger.valueOf(1L));
+            System.out.println();
+        }
     }
 }

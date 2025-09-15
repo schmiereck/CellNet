@@ -1,6 +1,10 @@
 package de.schmiereck.cellNet.state2;
 
 import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CellNetServiceTest {
@@ -133,5 +137,58 @@ public class CellNetServiceTest {
                 }
             }
         }
+    }
+
+    @Test
+    public void testFindRulesWithDifferentResults() {
+        Map<String, Integer> uniqueResultPatternToRule = findRulesWithDifferentResults();
+        int[] rules = uniqueResultPatternToRule.values().stream().mapToInt(Integer::intValue).toArray();
+        assertNotNull(rules);
+        assertEquals(GridService.RULE_COUNT, uniqueResultPatternToRule.size(), "There are double rules with same result.");
+        assertTrue(rules.length > 0, "Es sollten Regeln mit unterschiedlichen Ergebnismustern existieren.");
+
+        System.out.printf("rules (%d): %s%n", rules.length, Arrays.toString(rules));
+
+        for (final String resultPattern : uniqueResultPatternToRule.keySet()) {
+            System.out.printf("Pattern: %s => Rule: %d%n", resultPattern, uniqueResultPatternToRule.get(resultPattern));
+        }
+
+        java.util.Set<String> resultPatternSet = new java.util.HashSet<>();
+        for (int ruleNr : rules) {
+            StringBuilder resultPatternBuilder = new StringBuilder();
+            for (int left = 0; left <= 1; left++) {
+                for (int right = 0; right <= 1; right++) {
+                    int val = CellNetService.calcNewValue(left, right, ruleNr);
+                    resultPatternBuilder.append(val);
+                }
+            }
+            String resultPattern = resultPatternBuilder.toString();
+            // Muster muss eindeutig sein
+            assertTrue(resultPatternSet.add(resultPattern), "Doppeltes Ergebnismuster gefunden für Regel " + ruleNr + ": " + resultPattern);
+        }
+        // Die Anzahl der Regeln muss der Anzahl der unterschiedlichen Muster entsprechen
+        assertEquals(resultPatternSet.size(), rules.length, "Jede Regel muss ein einzigartiges Ergebnismuster haben.");
+    }
+
+    private static Map<String, Integer> findRulesWithDifferentResults() {
+        Map<String, Integer> uniquePatternToRule = new java.util.LinkedHashMap<>();
+
+        for (int ruleNr = 0; ruleNr < de.schmiereck.cellNet.state2.GridService.RULE_COUNT; ruleNr++) {
+            StringBuilder patternBuilder = new StringBuilder();
+            for (int leftValue = 0; leftValue <= 1; leftValue++) {
+                for (int rightValue = 0; rightValue <= 1; rightValue++) {
+                    int newValue =
+                            CellNetService.calcNewValue(leftValue, rightValue, ruleNr);
+                    patternBuilder.append(newValue);
+                }
+            }
+            String pattern = patternBuilder.toString();
+            // Nur die erste Regel mit diesem Muster aufnehmen
+            if (!uniquePatternToRule.containsKey(pattern)) {
+                uniquePatternToRule.put(pattern, ruleNr);
+            }
+        }
+        // Rückgabe als int[]
+        return uniquePatternToRule;
     }
 }

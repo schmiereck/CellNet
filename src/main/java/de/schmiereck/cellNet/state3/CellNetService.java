@@ -21,10 +21,29 @@ public class CellNetService {
         }
     }
 
-    private static int calcNewValue(final int leftValue, final int middleValue, final int rightValue, final int ruleNr) {
+    public static int calcNewValue(final int leftValue, final int middleValue, final int rightValue, final int ruleNr) {
         // Nachbarschaft als Bitmuster
         final int pattern = (leftValue << 2) | (middleValue << 1) | rightValue;
         // Regel anwenden: das Bit an der Position 'pattern' gibt den neuen Wert
         return (ruleNr >> pattern) & 1;
+    }
+
+    public static void main(String[] args) {
+        testCheckValueForAllCombinations();
+    }
+
+    private static void testCheckValueForAllCombinations() {
+        for (int leftValue = 0; leftValue <= 1; leftValue++) {
+            for (int middleValue = 0; middleValue <= 1; middleValue++) {
+                for (int rightValue = 0; rightValue <= 1; rightValue++) {
+                    System.out.printf("Left: %d, Middle: %d, Right: %d %n", leftValue, middleValue, rightValue);
+                    for (int ruleNr = 0; ruleNr < GridService.RULE_COUNT; ruleNr++) {
+                        final int newValue = calcNewValue(leftValue, middleValue, rightValue, ruleNr);
+                        System.out.printf("Rule: %3d => New: %d; %n", ruleNr, newValue);
+                    }
+                    System.out.println();
+                }
+            }
+        }
     }
 }

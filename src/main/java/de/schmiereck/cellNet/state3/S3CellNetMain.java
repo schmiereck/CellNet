@@ -477,7 +477,7 @@ public class S3CellNetMain {
         System.out.printf("---------------------------------------------------------%n");
         // sizeY = Anzahl Regel-Zeilen (ohne Input-Layer)
         final int totalSizeY = sizeY + 1;
-        final BigInteger maxGridNr = BigInteger.valueOf(GridService.RULE_COUNT).pow(sizeX * sizeY);
+        final BigInteger maxGridNr = GridService.calcMaxGridNr(sizeX, sizeY);
         System.out.printf("size: %d, %d+1 (maxGridNr: %,d)%n", sizeX, sizeY, maxGridNr);
 
         final BigInteger progressDivisor;

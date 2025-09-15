@@ -28,7 +28,7 @@ public class CellNetService {
         }
     }
 
-    private static int calcNewValue(final int leftValue, final int rightValue, final int ruleNr) {
+    static int calcNewValue(final int leftValue, final int rightValue, final int ruleNr) {
         // Nachbarschaft als Bitmuster
         final int pattern = (leftValue << 1) | rightValue;
         // Regel anwenden: das Bit an der Position 'pattern' gibt den neuen Wert

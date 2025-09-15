@@ -356,8 +356,7 @@ public class S2CellNetMain {
                                                          final int[] rowSizeXArr, final int sizeY) {
         System.out.printf("---------------------------------------------------------%n");
         // sizeY = Anzahl Regel-Zeilen (ohne Input-Layer)
-        final int cellCount = Arrays.stream(rowSizeXArr).sum();
-        final BigInteger maxGridNr = BigInteger.valueOf(GridService.RULE_COUNT).pow(cellCount);
+        final BigInteger maxGridNr = GridService.calcMaxGridNr(rowSizeXArr);
         System.out.printf("size: %s, %d+1 (maxGridNr: %,d)%n", Arrays.toString(rowSizeXArr), sizeY, maxGridNr);
 
         final BigInteger progressDivisor;
