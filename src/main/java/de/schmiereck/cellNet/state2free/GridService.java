@@ -1,4 +1,4 @@
-package de.schmiereck.cellNet.state2;
+package de.schmiereck.cellNet.state2free;
 
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -131,12 +131,12 @@ public class GridService {
      * Die Zellen werden zeilenweise (y,x) von oben links nach unten rechts befüllt.
      * Die erste Zeile (y=0) ist der Input-Layer und bekommt ruleNr=0.
      */
-    public static Grid createGridForCombination(final int[] rowSizeXArr, final int sizeY, final java.math.BigInteger gridNr) {
+    public static Grid createGridForCombination(final int[] rowSizeXArr, final int sizeY, final BigInteger gridNr) {
         // sizeY = Anzahl der Regel-Zeilen (ohne Input-Layer)
         final int totalSizeY = sizeY + 1;
         final Grid grid = new Grid(totalSizeY);
         grid.rowArr = new Row[totalSizeY];
-        java.math.BigInteger countNr = gridNr;
+        BigInteger countNr = gridNr;
         for (int y = 0; y < totalSizeY; y++) {
             // Input-Layer (y=0) bekommt die Größe der ersten Regel-Zeile
             final int rowSizeX = rowSizeXArr[y == 0 ? 0 : y - 1];

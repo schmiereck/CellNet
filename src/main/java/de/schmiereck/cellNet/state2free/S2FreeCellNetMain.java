@@ -1,6 +1,4 @@
-package de.schmiereck.cellNet.state2;
-
-import de.schmiereck.cellNet.state3.S3CellNetMain;
+package de.schmiereck.cellNet.state2free;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -9,7 +7,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
 
-public class S2CellNetMain {
+public class S2FreeCellNetMain {
     public static boolean showExtraResults = false;
     public static boolean ShowFoundGridNr = false;
 
@@ -20,7 +18,7 @@ public class S2CellNetMain {
         //findTestRuleNumbersI2O2(); // No universal Solution.
         //findTestRuleNumbersI2O2Deep(); // Works.
 
-        findBooleanAndRuleNumbersI2O1();      // AND:     size: 2, 2+1 [7, 8]
+        //findBooleanAndRuleNumbersI2O1();      // AND:     size: 2, 2+1 [7, 8]
         //findBooleanOrRuleNumbersI2O1();       // OR:      size: 2, 2+1 [1, 14]
         //findBooleanNandRuleNumbersI2O1();     // NAND:    size: 2, 3+1 [7]
         //findBooleanNorRuleNumbersI2O1();      // NOR:     size: 2, 3+1 [1]
@@ -40,7 +38,7 @@ public class S2CellNetMain {
         //findBooleanRuleNumbersI2O2(); // No universal Solution.
         //findBooleanRuleNumbersI2O1Deep(); // Runs years...
 
-        //findCountRuleNumbersI2O2(); // No universal Solution.
+        findCountRuleNumbersI2O2(); // No universal Solution.
         //findCountRuleNumbersI2O2Deep(); // Find GridNr: 14787
         //findCountRuleNumbersI3O3Deep(); // Runs years...
     }
@@ -126,18 +124,17 @@ public class S2CellNetMain {
     }
 
     private static void findBooleanAndRuleNumbersI2O1() {
-        //final int maxSearchSize = 256;
-        final int maxSearchSize = 8;
-
         // Definition der booleschen Operationen und deren erwartete Outputs
-        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
         final List<OpOutput> opOutputArr = new ArrayList<>();
 
         opOutputArr.add(new OpOutput("AND",
                 new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
                 new int[][] { { 0 }, { 0 }, { 0 }, { 1 } }));
 
-        findUniversalRuleNr(maxSearchSize, opOutputArr, 2, 2);
+        final int[] rowSizeXArr = new int[] { 2, 1 }; // Input-Layer und eine Regel-Zeile
+        final int sizeY = 1;
+
+        findUniversalRuleNr(opOutputArr, rowSizeXArr, sizeY);
     }
 
     private static void findBooleanOrRuleNumbersI2O1() {
@@ -145,7 +142,6 @@ public class S2CellNetMain {
         final int maxSearchSize = 8;
 
         // Definition der booleschen Operationen und deren erwartete Outputs
-        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
         final List<OpOutput> opOutputArr = new ArrayList<>();
 
         opOutputArr.add(new OpOutput("OR",
@@ -160,7 +156,6 @@ public class S2CellNetMain {
         final int maxSearchSize = 8;
 
         // Definition der booleschen Operationen und deren erwartete Outputs
-        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
         final List<OpOutput> opOutputArr = new ArrayList<>();
 
         opOutputArr.add(new OpOutput("NAND",
@@ -175,7 +170,6 @@ public class S2CellNetMain {
         final int maxSearchSize = 8;
 
         // Definition der booleschen Operationen und deren erwartete Outputs
-        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
         final List<OpOutput> opOutputArr = new ArrayList<>();
 
         opOutputArr.add(new OpOutput("NOR",
@@ -190,7 +184,6 @@ public class S2CellNetMain {
         final int maxSearchSize = 8;
 
         // Definition der booleschen Operationen und deren erwartete Outputs
-        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
         final List<OpOutput> opOutputArr = new ArrayList<>();
 
         opOutputArr.add(new OpOutput("XOR",
@@ -205,7 +198,6 @@ public class S2CellNetMain {
         final int maxSearchSize = 8;
 
         // Definition der booleschen Operationen und deren erwartete Outputs
-        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
         final List<OpOutput> opOutputArr = new ArrayList<>();
 
         opOutputArr.add(new OpOutput("XNOR",
@@ -220,7 +212,6 @@ public class S2CellNetMain {
         final int maxSearchSize = 8;
 
         // Definition der booleschen Operationen und deren erwartete Outputs
-        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
         final List<OpOutput> opOutputArr = new ArrayList<>();
 
         opOutputArr.add(new OpOutput("AND",
@@ -596,7 +587,8 @@ public class S2CellNetMain {
     private static List<Integer>[] findRuleNrList(final List<OpOutput> opOutputArr, final int[] rowSizeXArr, final int sizeY) {
         System.out.printf("---------------------------------------------------------%n");
         final int maxuleNr = GridService.calcMaxRuleNr();
-        System.out.printf("size: %s, %d+1 (maxuleNr: %,d)%n", Arrays.toString(rowSizeXArr), sizeY, maxuleNr);
+        final int cellCount = GridService.calcCellCount(rowSizeXArr);
+        System.out.printf("size: %s, %d+1 (cellCount: %d, maxuleNr: %,d)%n", Arrays.toString(rowSizeXArr), sizeY, cellCount, maxuleNr);
 
         @SuppressWarnings("unchecked")
         final List<Integer>[] matchingRuleListArr = new ArrayList[opOutputArr.size()];

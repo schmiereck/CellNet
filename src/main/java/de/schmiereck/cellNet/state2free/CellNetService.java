@@ -1,4 +1,4 @@
-package de.schmiereck.cellNet.state2;
+package de.schmiereck.cellNet.state2free;
 
 public class CellNetService {
 
@@ -11,9 +11,9 @@ public class CellNetService {
             for (int x = 0; x < actRow.sizeX; x++) {
                 final Cell calcCell = actCellArr[x];
                 // Nachbarn bestimmen (Randbehandlung: Wrap-Around)
-                final int cellLeftX = x;
+                final int cellLeftX = x + calcCell.leftOffX;
                 final int parentLeftX = (cellLeftX < parentRow.sizeX) ? cellLeftX : cellLeftX % parentRow.sizeX;
-                final int cellRightX = x + Cell.RIGHT_OFF_X;
+                final int cellRightX = x + calcCell.rightOffX;
                 final int parentRightX = (cellRightX < parentRow.sizeX - 1) ? cellRightX : cellRightX % parentRow.sizeX;
 
                 //final int leftValue = parentCellArr[leftIndex].value;
