@@ -26,6 +26,28 @@ public class GridService {
         return grid;
     }
 
+    public static Grid createGrid(final int[] rowSizeXArr, final int sizeY, final int ruleNr) {
+        // sizeY = Anzahl der Regel-Zeilen (ohne Input-Layer)
+        final int totalSizeY = sizeY + 1;
+        final Grid grid = new Grid(totalSizeY);
+        grid.rowArr = new Row[totalSizeY];
+        for (int y = 0; y < totalSizeY; y++) {
+            // Input-Layer (y=0) bekommt die Größe der ersten Regel-Zeile
+            final int rowSizeX = rowSizeXArr[y == 0 ? 0 : y - 1];
+
+            grid.rowArr[y] = new Row(rowSizeX);
+            grid.rowArr[y].cellArr = new Cell[rowSizeX];
+
+            for (int x = 0; x < rowSizeX; x++) {
+                final Cell cell = new Cell();
+                cell.ruleNr = ruleNr;
+                cell.value = 0;
+                grid.rowArr[y].cellArr[x] = cell;
+            }
+        }
+        return grid;
+    }
+
     public static void submitInput(final Grid grid, final int[] inputArr) {
         final Row inputRow = grid.rowArr[0];
         for (int x = 0; x < inputArr.length; x++) {
@@ -117,11 +139,11 @@ public class GridService {
         java.math.BigInteger countNr = gridNr;
         for (int y = 0; y < totalSizeY; y++) {
             // Input-Layer (y=0) bekommt die Größe der ersten Regel-Zeile
-            final int sizeX = rowSizeXArr[y == 0 ? 0 : y - 1];
+            final int rowSizeX = rowSizeXArr[y == 0 ? 0 : y - 1];
 
-            grid.rowArr[y] = new Row(sizeX);
-            grid.rowArr[y].cellArr = new Cell[sizeX];
-            for (int x = 0; x < sizeX; x++) {
+            grid.rowArr[y] = new Row(rowSizeX);
+            grid.rowArr[y].cellArr = new Cell[rowSizeX];
+            for (int x = 0; x < rowSizeX; x++) {
                 final Cell cell = new Cell();
                 if (y == 0) {
                     cell.ruleNr = 0; // Input-Layer

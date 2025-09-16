@@ -1,5 +1,7 @@
 package de.schmiereck.cellNet.state2;
 
+import de.schmiereck.cellNet.state3.S3CellNetMain;
+
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -18,13 +20,28 @@ public class S2CellNetMain {
         //findTestRuleNumbersI2O2(); // No universal Solution.
         //findTestRuleNumbersI2O2Deep(); // Works.
 
-        //findBooleanRuleNumbersI2O1(); // Works. No universal Solution.
+        //findBooleanAndRuleNumbersI2O1();      // AND:     size: 2, 2+1 [7, 8]
+        //findBooleanOrRuleNumbersI2O1();       // OR:      size: 2, 2+1 [1, 14]
+        //findBooleanNandRuleNumbersI2O1();     // NAND:    size: 2, 3+1 [7]
+        //findBooleanNorRuleNumbersI2O1();      // NOR:     size: 2, 3+1 [1]
+        //findBooleanXorRuleNumbersI2O1();      // XOR:     size: 3, 4+1 [6]
+        //findBooleanXnorRuleNumbersI2O1();     // XNOR:    size: 3, 4+1 [9]
+
+        //findBooleanAndRuleNumbersI2O1Deep();  // AND:     size: [2], 1+1 GridNr:  8, size: [2, 2], 2+1 GridNr: 263
+        //findBooleanOrRuleNumbersI2O1Deep();   // OR:      size: [2], 1+1 GridNr: 14 , size: [2, 2], 2+1 GridNr: 257
+        //findBooleanNandRuleNumbersI2O1Deep(); // NAND:    size: [2], 1+1 GridNr:  7, size: [2, 2], 2+1 GridNr: 264
+        //findBooleanNorRuleNumbersI2O1Deep();  // NOR:     size: [2], 1+1 GridNr:  1, size: [2, 2], 2+1 GridNr: 270
+        //findBooleanXorRuleNumbersI2O1Deep();  // XOR:     size: [2], 1+1 GridNr:  6, size: [2, 2], 2+1 GridNr: 20745
+        //findBooleanXnorRuleNumbersI2O1Deep(); // XNOR:    size: [2], 1+1 GridNr:  9, size: [2, 2], 2+1 GridNr: 20742
         //findSimpleBooleanRuleNumbersI2O1(); // No universal Solution.
+        //findSimpleBooleanRuleNumbersI2O1Deep(); //
+        //findBooleanRuleNumbersI2O1(); // Works. No universal Solution.
         //findBooleanRuleNumbersI2O1xxxDeep(); // Runs years...
         //findBooleanRuleNumbersI2O2(); // No universal Solution.
         //findBooleanRuleNumbersI2O1Deep(); // Runs years...
 
-        findCountRuleNumbersI2O2Deep(); // Fing GridNr: 14787
+        //findCountRuleNumbersI2O2(); // No universal Solution.
+        findCountRuleNumbersI2O2Deep(); // Find GridNr: 14787
         //findCountRuleNumbersI3O3Deep(); // Runs years...
     }
 
@@ -42,16 +59,16 @@ public class S2CellNetMain {
     }
 
     private static void findTestRuleNumbersI2O1() {
-        final int maxSearchSize = 256;
-        //final int maxSearchSize = 64;
-
         final List<OpOutput> opOutputArr = new ArrayList<>();
 
-        opOutputArr.add(new OpOutput("OR-Test",
+        opOutputArr.add(new OpOutput("NUM-Test",
                 new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
                 new int[][] { { 0 }, { 1 }, { 1 }, { 1 } }));
 
-        findUniversalRuleNr(maxSearchSize, opOutputArr, 2, 2);
+        final int[] rowSizeXArr = new int[] { 2, 1 }; // Input-Layer und eine Regel-Zeile
+        final int sizeY = 2;
+
+        findUniversalRuleNr(opOutputArr, rowSizeXArr, sizeY);
     }
 
     private static void findTestRuleNumbersI2O2() {
@@ -65,6 +82,19 @@ public class S2CellNetMain {
                 new int[][] { { 0, 0 }, { 0, 1 }, { 0, 1 }, { 0, 1 } }));
 
         findUniversalRuleNr(maxSearchSize, opOutputArr, 2, 2);
+    }
+
+    private static void findCountRuleNumbersI2O2() {
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("COUNT-NEXT",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 0, 1 }, { 1, 0 }, { 1, 1 }, { 0, 0 } }));
+
+        final int[] rowSizeXArr = new int[] { 2, 3, 4, 5, 4, 3, 2 }; // Input-Layer und eine Regel-Zeile
+        final int sizeY = 2;
+
+        findUniversalRuleNr(opOutputArr, rowSizeXArr, sizeY);
     }
 
     private static void findCountRuleNumbersI2O2Deep() {
@@ -95,11 +125,182 @@ public class S2CellNetMain {
         findUniversalRuleNrDeep(maxSearchSize, opOutputArr, 3, 2);
     }
 
+    private static void findBooleanAndRuleNumbersI2O1() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("AND",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 0 }, { 0 }, { 0 }, { 1 } }));
+
+        findUniversalRuleNr(maxSearchSize, opOutputArr, 2, 2);
+    }
+
+    private static void findBooleanOrRuleNumbersI2O1() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("OR",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 0 }, { 1 }, { 1 }, { 1 } }));
+
+        findUniversalRuleNr(maxSearchSize, opOutputArr, 2, 2);
+    }
+
+    private static void findBooleanNandRuleNumbersI2O1() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("NAND",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 1 }, { 1 }, { 1 }, { 0 } }));
+
+        findUniversalRuleNr(maxSearchSize, opOutputArr, 2, 2);
+    }
+
+    private static void findBooleanNorRuleNumbersI2O1() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("NOR",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 1 }, { 0 }, { 0 }, { 0 } }));
+
+        findUniversalRuleNr(maxSearchSize, opOutputArr, 2, 2);
+    }
+
+    private static void findBooleanXorRuleNumbersI2O1() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("XOR",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 0 }, { 1 }, { 1 }, { 0 } }));
+
+        findUniversalRuleNr(maxSearchSize, opOutputArr, 2, 2);
+    }
+
+    private static void findBooleanXnorRuleNumbersI2O1() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("XNOR",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 1 }, { 0 }, { 0 }, { 1 } }));
+
+        findUniversalRuleNr(maxSearchSize, opOutputArr, 2, 2);
+    }
+
+    private static void findBooleanAndRuleNumbersI2O1Deep() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("AND",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 0 }, { 0 }, { 0 }, { 1 } }));
+
+        findUniversalRuleNrDeep(maxSearchSize, opOutputArr, 2, 1);
+    }
+
+    private static void findBooleanOrRuleNumbersI2O1Deep() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("OR",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 0 }, { 1 }, { 1 }, { 1 } }));
+
+        findUniversalRuleNrDeep(maxSearchSize, opOutputArr, 2, 1);
+    }
+
+    private static void findBooleanNandRuleNumbersI2O1Deep() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("NAND",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 1 }, { 1 }, { 1 }, { 0 } }));
+
+        findUniversalRuleNrDeep(maxSearchSize, opOutputArr, 2, 1);
+    }
+
+    private static void findBooleanNorRuleNumbersI2O1Deep() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("NOR",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 1 }, { 0 }, { 0 }, { 0 } }));
+
+        findUniversalRuleNrDeep(maxSearchSize, opOutputArr, 2, 1);
+    }
+
+    private static void findBooleanXorRuleNumbersI2O1Deep() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("XOR",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 0 }, { 1 }, { 1 }, { 0 } }));
+
+        findUniversalRuleNrDeep(maxSearchSize, opOutputArr, 2, 1);
+    }
+
+    private static void findBooleanXnorRuleNumbersI2O1Deep() {
+        //final int maxSearchSize = 256;
+        final int maxSearchSize = 8;
+
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("XNOR",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 1 }, { 0 }, { 0 }, { 1 } }));
+
+        findUniversalRuleNrDeep(maxSearchSize, opOutputArr, 2, 1);
+    }
+
     private static void findBooleanRuleNumbersI2O1() {
         //final int maxSearchSize = 256;
         final int maxSearchSize = 8;
 
         // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
         final List<OpOutput> opOutputArr = new ArrayList<>();
 
         opOutputArr.add(new OpOutput("000-AND",
@@ -126,6 +327,7 @@ public class S2CellNetMain {
 
     private static void findBooleanRuleNumbersI2O1xxxDeep() {
         // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
         final List<OpOutput> opOutputArr = new ArrayList<>();
 
         opOutputArr.add(new OpOutput("000-AND",
@@ -157,6 +359,7 @@ public class S2CellNetMain {
         final int maxSearchSize = 16;
 
         // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
         final List<OpOutput> opOutputArr = new ArrayList<>();
 
         opOutputArr.add(new OpOutput("000-AND",
@@ -186,6 +389,7 @@ public class S2CellNetMain {
         final int maxSearchSize = 8;
 
         // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
         final List<OpOutput> opOutputArr = new ArrayList<>();
 
         opOutputArr.add(new OpOutput("000-AND",
@@ -212,7 +416,8 @@ public class S2CellNetMain {
 
     private static void findSimpleBooleanRuleNumbersI2O1() {
         //final int maxSearchSize = 256;
-        final int maxSearchSize = 64;
+        final int maxSearchSize = 128;
+        //final int maxSearchSize = 64;
 
         // Definition der booleschen Operationen und deren erwartete Outputs
         // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
@@ -231,7 +436,30 @@ public class S2CellNetMain {
                 new int[][] { { 1, 1,   0, 0 }, { 1, 1,   0, 1 }, { 1, 1,   1, 0 }, { 1, 1,   1, 1 } },
                 new int[][] { { 1 }, { 0 }, { 0 }, { 0 } }));
 
-        findUniversalRuleNr(maxSearchSize, opOutputArr, 2 + 2, 2);
+        findUniversalRuleNr(maxSearchSize, opOutputArr, 2 + 2, 1);
+    }
+
+    private static void findSimpleBooleanRuleNumbersI2O1Deep() {
+        final int maxSearchSize = 8;
+
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("00-AND",
+                new int[][] { { 0, 0,   0, 0 }, { 0, 0,   0, 1 }, { 0, 0,   1, 0 }, { 0, 0,   1, 1 } },
+                new int[][] { { 0 }, { 0 }, { 0 }, { 1 } }));
+        opOutputArr.add(new OpOutput("01-OR",
+                new int[][] { { 0, 1,   0, 0 }, { 0, 1,   0, 1 }, { 0, 1,   1, 0 }, { 0, 1,   1, 1 } },
+                new int[][] { { 0 }, { 1 }, { 1 }, { 1 } }));
+        opOutputArr.add(new OpOutput("10-NAND",
+                new int[][] { { 1, 0,   0, 0 }, { 1, 0,   0, 1 }, { 1, 0,   1, 0 }, { 1, 0,   1, 1 } },
+                new int[][] { { 1 }, { 1 }, { 1 }, { 0 } }));
+        opOutputArr.add(new OpOutput("11-NOR",
+                new int[][] { { 1, 1,   0, 0 }, { 1, 1,   0, 1 }, { 1, 1,   1, 0 }, { 1, 1,   1, 1 } },
+                new int[][] { { 1 }, { 0 }, { 0 }, { 0 } }));
+
+        findUniversalRuleNrDeep(maxSearchSize, opOutputArr, 2 + 2, 1);
     }
 
     private static void findUniversalRuleNr(int maxSearchSize, List<OpOutput> opOutputArr,
@@ -250,6 +478,19 @@ public class S2CellNetMain {
                     System.out.println("Keine universelle RuleNr gefunden, die für alle Operationen gültig ist.");
                 }
             }
+        }
+    }
+
+    private static void findUniversalRuleNr(List<OpOutput> opOutputArr,
+                                            final int[] rowSizeXArr, final int sizeY) {
+        final List<Integer>[] matchingRuleNrListArr = findRuleNrList(opOutputArr, rowSizeXArr, sizeY);
+        final Integer universalRuleNr = findUniversalMatchingRuleNr(matchingRuleNrListArr);
+        if (Objects.nonNull(universalRuleNr)) {
+            System.out.printf("Universelle RuleNr (für alle Operationen gültig): %d%n", universalRuleNr);
+            final Grid universalGrid = GridService.createGrid(rowSizeXArr, sizeY, universalRuleNr);
+            printGridRuleNr(universalGrid);
+        } else {
+            System.out.println("Keine universelle RuleNr gefunden, die für alle Operationen gültig ist.");
         }
     }
 
@@ -346,6 +587,66 @@ public class S2CellNetMain {
                 System.out.printf("%s: %s\n", opName, matchingRuleListArr[pos]);
                 if (matchingRuleListArr[pos].size() > 0) {
                     printGridForOperation(opName, matchingRuleListArr[pos].getFirst(), inputArrArr, expectedOutputArrArr, sizeX, sizeY);
+                }
+            }
+        }
+        return matchingRuleListArr;
+    }
+
+    private static List<Integer>[] findRuleNrList(final List<OpOutput> opOutputArr, final int[] rowSizeXArr, final int sizeY) {
+        System.out.printf("---------------------------------------------------------%n");
+        final BigInteger maxGridNr = GridService.calcMaxGridNr(rowSizeXArr);
+        System.out.printf("size: %s, %d+1 (maxGridNr: %,d)%n", Arrays.toString(rowSizeXArr), sizeY, maxGridNr);
+
+        @SuppressWarnings("unchecked")
+        final List<Integer>[] matchingRuleListArr = new ArrayList[opOutputArr.size()];
+
+        // Parallele Verarbeitung jeder Operation
+        IntStream.range(0, opOutputArr.size()).parallel().forEach(pos -> {
+            final OpOutput opOutput = opOutputArr.get(pos);
+            final String opName = opOutput.opName();
+            final int[][] expectedOutputArrArr = opOutput.expectedOutputArrArr();
+            final int[][] inputArrArr = opOutput.inputArrArr;
+
+            final List<Integer> matchingRuleNrList = new ArrayList<>();
+            // Prüfe alle 256 Regeln parallel
+            IntStream.rangeClosed(0, GridService.MAX_RULE_NR).parallel().forEach(ruleNr -> {
+                boolean allInputsMatch = true;
+                for (int inputArrArrPos = 0; inputArrArrPos < inputArrArr.length && allInputsMatch; inputArrArrPos++) {
+                    final int[] inputArr = inputArrArr[inputArrArrPos];
+                    final Grid grid = GridService.createGrid(rowSizeXArr, sizeY, ruleNr);
+                    GridService.submitInput(grid, inputArr);
+                    CellNetService.calcGrid(grid);
+                    final int[] outputArr = GridService.retieveOutput(grid);
+                    final int[] expectedOutputArr = expectedOutputArrArr[inputArrArrPos];
+                    for (int outputArrPos = 0; outputArrPos < expectedOutputArr.length; outputArrPos++) {
+                        if (outputArr[outputArrPos] != expectedOutputArr[outputArrPos]) {
+                            allInputsMatch = false;
+                            break;
+                        }
+                    }
+                }
+                if (allInputsMatch) {
+                    synchronized (matchingRuleNrList) { // Sammelliste schützen
+                        matchingRuleNrList.add(ruleNr);
+                    }
+                }
+            });
+            matchingRuleNrList.sort(Comparator.comparingInt(ruleNr -> ruleNr));
+            matchingRuleListArr[pos] = matchingRuleNrList;
+            System.out.printf("%s: %s\n", opName, matchingRuleNrList);
+        });
+
+        if (showExtraResults) {
+            System.out.printf("---------------------------------------------------------%n");
+            for (int pos = 0; pos < opOutputArr.size(); pos++) {
+                final OpOutput opOutput = opOutputArr.get(pos);
+                final String opName = opOutput.opName();
+                final int[][] expectedOutputArrArr = opOutput.expectedOutputArrArr();
+                final int[][] inputArrArr = opOutput.inputArrArr;
+                System.out.printf("%s: %s\n", opName, matchingRuleListArr[pos]);
+                if (matchingRuleListArr[pos].size() > 0) {
+                    printGridForOperation(opName, matchingRuleListArr[pos].getFirst(), inputArrArr, expectedOutputArrArr, rowSizeXArr, sizeY);
                 }
             }
         }
@@ -495,12 +796,27 @@ public class S2CellNetMain {
         return universalGridNr;
     }
 
-    private static void printGridForOperation(String opName, int ruleNr, int[][] inputArrArr, int[][] expectedOutputArrArr, int sizeX, int sizeY) {
+    private static void printGridForOperation(final String opName, final int ruleNr, final int[][] inputArrArr, final int[][] expectedOutputArrArr, final int sizeX, final int sizeY) {
         System.out.printf("Operation: %s, Regel: %d\n", opName, ruleNr);
         for (int inputArrArrPos = 0; inputArrArrPos < inputArrArr.length; inputArrArrPos++) {
             final int[] inputArr = inputArrArr[inputArrArrPos];
             final int[] expectedOutputArr = expectedOutputArrArr[inputArrArrPos];
             final Grid grid = GridService.createGrid(sizeX, sizeY, ruleNr);
+            GridService.submitInput(grid, inputArr);
+            CellNetService.calcGrid(grid);
+            final int[] outputArr = GridService.retieveOutput(grid);
+            System.out.printf("Eingabe: %s, Erwartete Ausgabe: %s, Tatsächliche Ausgabe: %s\n", Arrays.toString(inputArr), Arrays.toString(expectedOutputArr), Arrays.toString(outputArr));
+            printGridValue(grid);
+        }
+        System.out.println();
+    }
+
+    private static void printGridForOperation(final String opName, final int ruleNr, final int[][] inputArrArr, final int[][] expectedOutputArrArr, final int[] rowSizeXArr, final int sizeY) {
+        System.out.printf("Operation: %s, Regel: %d\n", opName, ruleNr);
+        for (int inputArrArrPos = 0; inputArrArrPos < inputArrArr.length; inputArrArrPos++) {
+            final int[] inputArr = inputArrArr[inputArrArrPos];
+            final int[] expectedOutputArr = expectedOutputArrArr[inputArrArrPos];
+            final Grid grid = GridService.createGrid(rowSizeXArr, sizeY, ruleNr);
             GridService.submitInput(grid, inputArr);
             CellNetService.calcGrid(grid);
             final int[] outputArr = GridService.retieveOutput(grid);
