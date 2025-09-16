@@ -66,7 +66,7 @@ public class S2FreeCellNetMain {
         final int[] rowSizeXArr = new int[] { 2, 1 }; // Input-Layer und eine Regel-Zeile
         final int sizeY = 2;
 
-        findUniversalRuleNr(opOutputArr, rowSizeXArr, sizeY);
+        findUniversalRuleOffNr(opOutputArr, rowSizeXArr);
     }
 
     private static void findTestRuleNumbersI2O2() {
@@ -89,10 +89,13 @@ public class S2FreeCellNetMain {
                 new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
                 new int[][] { { 0, 1 }, { 1, 0 }, { 1, 1 }, { 0, 0 } }));
 
-        final int[] rowSizeXArr = new int[] { 2, 3, 4, 5, 4, 3, 2 }; // Input-Layer und eine Regel-Zeile
-        final int sizeY = 2;
+        //final int[] rowSizeXArr = new int[] { 2, 3, 2 }; // Input-Layer und eine Regel-Zeile
+        //final int[] rowSizeXArr = new int[] { 2, 3, 3, 2 }; // Input-Layer und eine Regel-Zeile
+        final int[] rowSizeXArr = new int[] { 2, 3, 3, 3, 2 }; // Input-Layer und eine Regel-Zeile
+        //final int[] rowSizeXArr = new int[] { 2, 3, 4, 3, 2 }; // Input-Layer und eine Regel-Zeile
+        //final int[] rowSizeXArr = new int[] { 2, 3, 4, 5, 4, 3, 2 }; // Input-Layer und eine Regel-Zeile
 
-        findUniversalRuleNr(opOutputArr, rowSizeXArr, sizeY);
+        findUniversalRuleOffNr(opOutputArr, rowSizeXArr);
     }
 
     private static void findCountRuleNumbersI2O2Deep() {
@@ -134,7 +137,7 @@ public class S2FreeCellNetMain {
         final int[] rowSizeXArr = new int[] { 2, 1 }; // Input-Layer und eine Regel-Zeile
         final int sizeY = 1;
 
-        findUniversalRuleNr(opOutputArr, rowSizeXArr, sizeY);
+        findUniversalRuleOffNr(opOutputArr, rowSizeXArr);
     }
 
     private static void findBooleanOrRuleNumbersI2O1() {
@@ -462,7 +465,7 @@ public class S2FreeCellNetMain {
                 final Integer universalRuleNr = findUniversalMatchingRuleNr(matchingRuleNrListArr);
                 if (Objects.nonNull(universalRuleNr)) {
                     System.out.printf("Universelle RuleNr (für alle Operationen gültig): %d%n", universalRuleNr);
-                    final Grid universalGrid = GridService.createGrid(sizeX, sizeY, universalRuleNr);
+                    final Grid universalGrid = GridService.createGridByRuleNr(sizeX, sizeY, universalRuleNr);
                     printGridRuleNr(universalGrid);
                     break outerLoop;
                 } else {
@@ -472,13 +475,13 @@ public class S2FreeCellNetMain {
         }
     }
 
-    private static void findUniversalRuleNr(List<OpOutput> opOutputArr,
-                                            final int[] rowSizeXArr, final int sizeY) {
-        final List<Integer>[] matchingRuleNrListArr = findRuleNrList(opOutputArr, rowSizeXArr, sizeY);
-        final Integer universalRuleNr = findUniversalMatchingRuleNr(matchingRuleNrListArr);
-        if (Objects.nonNull(universalRuleNr)) {
-            System.out.printf("Universelle RuleNr (für alle Operationen gültig): %d%n", universalRuleNr);
-            final Grid universalGrid = GridService.createGrid(rowSizeXArr, sizeY, universalRuleNr);
+    private static void findUniversalRuleOffNr(List<OpOutput> opOutputArr,
+                                               final int[] rowSizeXArr) {
+        final List<Integer>[] matchingRuleOffListArr = findRuleOffNrList(opOutputArr, rowSizeXArr);
+        final Integer universalRuleOffNr = findUniversalMatchingRuleNr(matchingRuleOffListArr);
+        if (Objects.nonNull(universalRuleOffNr)) {
+            System.out.printf("Universelle RuleOffNr (für alle Operationen gültig): %d%n", universalRuleOffNr);
+            final Grid universalGrid = GridService.createGridByRuleOffNr(rowSizeXArr, universalRuleOffNr);
             printGridRuleNr(universalGrid);
         } else {
             System.out.println("Keine universelle RuleNr gefunden, die für alle Operationen gültig ist.");
@@ -545,7 +548,7 @@ public class S2FreeCellNetMain {
                 boolean allInputsMatch = true;
                 for (int inputArrArrPos = 0; inputArrArrPos < inputArrArr.length && allInputsMatch; inputArrArrPos++) {
                     final int[] inputArr = inputArrArr[inputArrArrPos];
-                    final Grid grid = GridService.createGrid(sizeX, sizeY, ruleNr);
+                    final Grid grid = GridService.createGridByRuleNr(sizeX, sizeY, ruleNr);
                     GridService.submitInput(grid, inputArr);
                     CellNetService.calcGrid(grid);
                     final int[] outputArr = GridService.retieveOutput(grid);
@@ -584,14 +587,16 @@ public class S2FreeCellNetMain {
         return matchingRuleListArr;
     }
 
-    private static List<Integer>[] findRuleNrList(final List<OpOutput> opOutputArr, final int[] rowSizeXArr, final int sizeY) {
+    private static List<Integer>[] findRuleOffNrList(final List<OpOutput> opOutputArr, final int[] rowSizeXArr) {
         System.out.printf("---------------------------------------------------------%n");
-        final int maxuleNr = GridService.calcMaxRuleNr();
         final int cellCount = GridService.calcCellCount(rowSizeXArr);
-        System.out.printf("size: %s, %d+1 (cellCount: %d, maxuleNr: %,d)%n", Arrays.toString(rowSizeXArr), sizeY, cellCount, maxuleNr);
+        final int maxRuleNr = GridService.calcMaxRuleNr();
+        final int maxOffsetCombinations = GridService.calcMaxOffsetCombinations(rowSizeXArr);
+        System.out.printf("size: %s, %d+1 (cellCount: %d, maxRuleNr: %,d, maxOff: %,d)%n",
+                Arrays.toString(rowSizeXArr), rowSizeXArr.length, cellCount, maxRuleNr, maxOffsetCombinations);
 
         @SuppressWarnings("unchecked")
-        final List<Integer>[] matchingRuleListArr = new ArrayList[opOutputArr.size()];
+        final List<Integer>[] matchingRuleOffListArr = new ArrayList[opOutputArr.size()];
 
         // Parallele Verarbeitung jeder Operation
         IntStream.range(0, opOutputArr.size()).parallel().forEach(pos -> {
@@ -600,33 +605,36 @@ public class S2FreeCellNetMain {
             final int[][] expectedOutputArrArr = opOutput.expectedOutputArrArr();
             final int[][] inputArrArr = opOutput.inputArrArr;
 
-            final List<Integer> matchingRuleNrList = new ArrayList<>();
+            final List<Integer> matchingRuleOffNrList = new ArrayList<>();
             // Prüfe alle 256 Regeln parallel
             IntStream.rangeClosed(0, GridService.MAX_RULE_NR).parallel().forEach(ruleNr -> {
-                boolean allInputsMatch = true;
-                for (int inputArrArrPos = 0; inputArrArrPos < inputArrArr.length && allInputsMatch; inputArrArrPos++) {
-                    final int[] inputArr = inputArrArr[inputArrArrPos];
-                    final Grid grid = GridService.createGrid(rowSizeXArr, sizeY, ruleNr);
-                    GridService.submitInput(grid, inputArr);
-                    CellNetService.calcGrid(grid);
-                    final int[] outputArr = GridService.retieveOutput(grid);
-                    final int[] expectedOutputArr = expectedOutputArrArr[inputArrArrPos];
-                    for (int outputArrPos = 0; outputArrPos < expectedOutputArr.length; outputArrPos++) {
-                        if (outputArr[outputArrPos] != expectedOutputArr[outputArrPos]) {
-                            allInputsMatch = false;
-                            break;
+                for (int offNr = 0; offNr < maxOffsetCombinations; offNr++) {
+                    final int ruleOffNr = ruleNr * maxOffsetCombinations + offNr;
+                    boolean allInputsMatch = true;
+                    for (int inputArrArrPos = 0; inputArrArrPos < inputArrArr.length && allInputsMatch; inputArrArrPos++) {
+                        final int[] inputArr = inputArrArr[inputArrArrPos];
+                        final Grid grid = GridService.createGridByRuleNrAndOffNr(rowSizeXArr, ruleNr, offNr);
+                        GridService.submitInput(grid, inputArr);
+                        CellNetService.calcGrid(grid);
+                        final int[] outputArr = GridService.retieveOutput(grid);
+                        final int[] expectedOutputArr = expectedOutputArrArr[inputArrArrPos];
+                        for (int outputArrPos = 0; outputArrPos < expectedOutputArr.length; outputArrPos++) {
+                            if (outputArr[outputArrPos] != expectedOutputArr[outputArrPos]) {
+                                allInputsMatch = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (allInputsMatch) {
+                        synchronized (matchingRuleOffNrList) { // Sammelliste schützen
+                            matchingRuleOffNrList.add(ruleOffNr);
                         }
                     }
                 }
-                if (allInputsMatch) {
-                    synchronized (matchingRuleNrList) { // Sammelliste schützen
-                        matchingRuleNrList.add(ruleNr);
-                    }
-                }
             });
-            matchingRuleNrList.sort(Comparator.comparingInt(ruleNr -> ruleNr));
-            matchingRuleListArr[pos] = matchingRuleNrList;
-            System.out.printf("%s: %s\n", opName, matchingRuleNrList);
+            matchingRuleOffNrList.sort(Comparator.comparingInt(ruleNr -> ruleNr));
+            matchingRuleOffListArr[pos] = matchingRuleOffNrList;
+            System.out.printf("%s: %s\n", opName, matchingRuleOffNrList);
         });
 
         if (showExtraResults) {
@@ -636,13 +644,13 @@ public class S2FreeCellNetMain {
                 final String opName = opOutput.opName();
                 final int[][] expectedOutputArrArr = opOutput.expectedOutputArrArr();
                 final int[][] inputArrArr = opOutput.inputArrArr;
-                System.out.printf("%s: %s\n", opName, matchingRuleListArr[pos]);
-                if (matchingRuleListArr[pos].size() > 0) {
-                    printGridForOperation(opName, matchingRuleListArr[pos].getFirst(), inputArrArr, expectedOutputArrArr, rowSizeXArr, sizeY);
+                System.out.printf("%s: %s\n", opName, matchingRuleOffListArr[pos]);
+                if (matchingRuleOffListArr[pos].size() > 0) {
+                    printGridForOperation(opName, matchingRuleOffListArr[pos].getFirst(), inputArrArr, expectedOutputArrArr, rowSizeXArr);
                 }
             }
         }
-        return matchingRuleListArr;
+        return matchingRuleOffListArr;
     }
 
     private static List<BigInteger>[] findGridNrListDeep(final List<OpOutput> opOutputArr,
@@ -748,18 +756,18 @@ public class S2FreeCellNetMain {
         return matchingGridNrListArr;
     }
 
-    private static Integer findUniversalMatchingRuleNr(List<Integer>[] matchingRuleListArr) {
-        Integer universalRuleNr = null;
-        if (matchingRuleListArr.length > 0) {
-            Set<Integer> intersection = new HashSet<>(matchingRuleListArr[0]);
-            for (int i = 1; i < matchingRuleListArr.length; i++) {
-                intersection.retainAll(matchingRuleListArr[i]);
+    private static Integer findUniversalMatchingRuleNr(List<Integer>[] matchingRuleOffListArr) {
+        Integer universalRuleOffNr = null;
+        if (matchingRuleOffListArr.length > 0) {
+            Set<Integer> intersection = new HashSet<>(matchingRuleOffListArr[0]);
+            for (int i = 1; i < matchingRuleOffListArr.length; i++) {
+                intersection.retainAll(matchingRuleOffListArr[i]);
             }
             if (!intersection.isEmpty()) {
-                universalRuleNr = intersection.iterator().next();
+                universalRuleOffNr = intersection.iterator().next();
             }
         }
-        return universalRuleNr;
+        return universalRuleOffNr;
     }
 
     private static BigInteger findUniversalMatchingGridNrDeep(List<BigInteger>[] matchingGridNrListArr) {
@@ -793,7 +801,7 @@ public class S2FreeCellNetMain {
         for (int inputArrArrPos = 0; inputArrArrPos < inputArrArr.length; inputArrArrPos++) {
             final int[] inputArr = inputArrArr[inputArrArrPos];
             final int[] expectedOutputArr = expectedOutputArrArr[inputArrArrPos];
-            final Grid grid = GridService.createGrid(sizeX, sizeY, ruleNr);
+            final Grid grid = GridService.createGridByRuleNr(sizeX, sizeY, ruleNr);
             GridService.submitInput(grid, inputArr);
             CellNetService.calcGrid(grid);
             final int[] outputArr = GridService.retieveOutput(grid);
@@ -803,12 +811,12 @@ public class S2FreeCellNetMain {
         System.out.println();
     }
 
-    private static void printGridForOperation(final String opName, final int ruleNr, final int[][] inputArrArr, final int[][] expectedOutputArrArr, final int[] rowSizeXArr, final int sizeY) {
+    private static void printGridForOperation(final String opName, final int ruleNr, final int[][] inputArrArr, final int[][] expectedOutputArrArr, final int[] rowSizeXArr) {
         System.out.printf("Operation: %s, Regel: %d\n", opName, ruleNr);
         for (int inputArrArrPos = 0; inputArrArrPos < inputArrArr.length; inputArrArrPos++) {
             final int[] inputArr = inputArrArr[inputArrArrPos];
             final int[] expectedOutputArr = expectedOutputArrArr[inputArrArrPos];
-            final Grid grid = GridService.createGrid(rowSizeXArr, sizeY, ruleNr);
+            final Grid grid = GridService.createGridByRuleNr(rowSizeXArr, ruleNr);
             GridService.submitInput(grid, inputArr);
             CellNetService.calcGrid(grid);
             final int[] outputArr = GridService.retieveOutput(grid);
