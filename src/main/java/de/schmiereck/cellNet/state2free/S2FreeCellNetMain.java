@@ -91,8 +91,8 @@ public class S2FreeCellNetMain {
 
         //final int[] rowSizeXArr = new int[] { 2, 3, 2 }; // Input-Layer und eine Regel-Zeile
         //final int[] rowSizeXArr = new int[] { 2, 3, 3, 2 }; // Input-Layer und eine Regel-Zeile
-        final int[] rowSizeXArr = new int[] { 2, 3, 3, 3, 2 }; // Input-Layer und eine Regel-Zeile
-        //final int[] rowSizeXArr = new int[] { 2, 3, 4, 3, 2 }; // Input-Layer und eine Regel-Zeile
+        //final int[] rowSizeXArr = new int[] { 2, 3, 3, 3, 2 }; // Input-Layer und eine Regel-Zeile
+        final int[] rowSizeXArr = new int[] { 2, 3, 4, 3, 2 }; // Input-Layer und eine Regel-Zeile
         //final int[] rowSizeXArr = new int[] { 2, 3, 4, 5, 4, 3, 2 }; // Input-Layer und eine Regel-Zeile
 
         findUniversalRuleOffNr(opOutputArr, rowSizeXArr);
@@ -344,8 +344,8 @@ public class S2FreeCellNetMain {
                 new int[][] { { 1 }, { 0 }, { 0 }, { 1 } }));
 
         final int[] rowSizeXArr = new int[] { 3 + 2, 4, 3, 2, 1 };
-        final int sizeY = 2;
-        findUniversalRuleNrDeep(opOutputArr, rowSizeXArr, sizeY);
+
+        findUniversalRuleNrDeep(opOutputArr, rowSizeXArr);
     }
 
     private static void findBooleanRuleNumbersI2O2() {
@@ -497,12 +497,12 @@ public class S2FreeCellNetMain {
                 for (int rowPos = 0; rowPos < sizeY; rowPos++) {
                     rowSizeXArr[rowPos] = sizeX;
                 }
-                final List<BigInteger>[] matchingGridNrListArr = findGridNrListDeep(opOutputArr, rowSizeXArr, sizeY);
+                final List<BigInteger>[] matchingGridNrListArr = findGridNrListDeep(opOutputArr, rowSizeXArr);
                 final BigInteger universalGridNr = findUniversalMatchingGridNrDeep(matchingGridNrListArr);
                 if (Objects.nonNull(universalGridNr)) {
                     System.out.printf("Universelle GridNr (für alle Operationen gültig): %d%n", universalGridNr);
                     // Create and show the universal grid
-                    final Grid universalGrid = GridService.createGridForCombination(rowSizeXArr, sizeY, universalGridNr);
+                    final Grid universalGrid = GridService.createGridForCombination(rowSizeXArr, universalGridNr);
                     printGridRuleNr(universalGrid);
                     break outerLoop;
                 } else {
@@ -513,13 +513,13 @@ public class S2FreeCellNetMain {
     }
 
     private static void findUniversalRuleNrDeep(List<OpOutput> opOutputArr,
-                                                final int[] rowSizeXArr, final int sizeY) {
-        final List<BigInteger>[] matchingGridNrListArr = findGridNrListDeep(opOutputArr, rowSizeXArr, sizeY);
+                                                final int[] rowSizeXArr) {
+        final List<BigInteger>[] matchingGridNrListArr = findGridNrListDeep(opOutputArr, rowSizeXArr);
         final BigInteger universalGridNr = findUniversalMatchingGridNrDeep(matchingGridNrListArr);
         if (Objects.nonNull(universalGridNr)) {
             System.out.printf("Universelle GridNr (für alle Operationen gültig): %d%n", universalGridNr);
             // Create and show the universal grid
-            final Grid universalGrid = GridService.createGridForCombination(rowSizeXArr, sizeY, universalGridNr);
+            final Grid universalGrid = GridService.createGridForCombination(rowSizeXArr, universalGridNr);
             printGridRuleNr(universalGrid);
         } else {
             System.out.println("Keine universelle GridNr gefunden, die für alle Operationen gültig ist.");
@@ -654,9 +654,10 @@ public class S2FreeCellNetMain {
     }
 
     private static List<BigInteger>[] findGridNrListDeep(final List<OpOutput> opOutputArr,
-                                                         final int[] rowSizeXArr, final int sizeY) {
+                                                         final int[] rowSizeXArr) {
         System.out.printf("---------------------------------------------------------%n");
         // sizeY = Anzahl Regel-Zeilen (ohne Input-Layer)
+        final int sizeY = rowSizeXArr.length;
         final BigInteger maxGridNr = GridService.calcMaxGridNr(rowSizeXArr);
         System.out.printf("size: %s, %d+1 (maxGridNr: %,d)%n", Arrays.toString(rowSizeXArr), sizeY, maxGridNr);
 
@@ -702,7 +703,7 @@ public class S2FreeCellNetMain {
                             nextBlockStart[0] = end;
                         }
                         for (BigInteger gridNr = start; gridNr.compareTo(end) < 0; gridNr = gridNr.add(BigInteger.ONE)) {
-                            final Grid grid = GridService.createGridForCombination(rowSizeXArr, sizeY, gridNr);
+                            final Grid grid = GridService.createGridForCombination(rowSizeXArr, gridNr);
                             boolean allInputsMatch = true;
                             inputArrArrPosLoop:
                             for (int inputArrArrPos = 0; inputArrArrPos < inputArrArr.length; inputArrArrPos++) {

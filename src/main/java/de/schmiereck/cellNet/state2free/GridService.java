@@ -215,9 +215,9 @@ public class GridService {
      * Die Zellen werden zeilenweise (y,x) von oben links nach unten rechts befüllt.
      * Die erste Zeile (y=0) ist der Input-Layer und bekommt ruleNr=0.
      */
-    public static Grid createGridForCombination(final int[] rowSizeXArr, final int sizeY, final BigInteger gridNr) {
+    public static Grid createGridForCombination(final int[] rowSizeXArr, final BigInteger gridNr) {
         // sizeY = Anzahl der Regel-Zeilen (ohne Input-Layer)
-        final int totalSizeY = sizeY + 1;
+        final int totalSizeY = rowSizeXArr.length + 1;
         final Grid grid = new Grid(totalSizeY);
         grid.rowArr = new Row[totalSizeY];
         BigInteger countNr = gridNr;
@@ -269,14 +269,13 @@ public class GridService {
 
     private static void testCheckGeneratedRuleCombinations() {
         final int[] rowSizeXArr = new int[]{2, 2}; // Input-Layer und eine Regel-Zeile
-        final int sizeY = 1;
 
         final BigInteger maxGridNr = calcMaxGridNr(rowSizeXArr);
 
         BigInteger gridCount = BigInteger.valueOf(0L);
         while (gridCount.compareTo(maxGridNr) < 0) {
             System.out.printf("GridNr: %6d ", gridCount);
-            final Grid grid = createGridForCombination(rowSizeXArr, sizeY, gridCount);
+            final Grid grid = createGridForCombination(rowSizeXArr, gridCount);
 
             for (int y = 0; y < grid.sizeY; y++) {
                 final Row row = grid.rowArr[y];
