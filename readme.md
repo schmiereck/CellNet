@@ -49,5 +49,12 @@ table of rules (in states => out (per ruleNr)):
 | 2 | 1 0 |     | 0 | 0 | 0 | 0 | 1 |...| 1  |
 | 3 | 1 1 |     | 0 | 0 | 0 | 0 | 0 |...| 1  |
 
+## CellNet State-2-free
+cellular automata -  
+one-dimensional,  
+**two** input states results in 256 different output rules.  
+The input parent Cells are freely selectable from all the positions in the parent row.
 
+The explored space of possibilities is much larger than in the State-2 and State-3 versions.  
+The ID-Number of a Grid is addressed by the ruleNr and a offNr specifying the offsets of the inputs.
 
