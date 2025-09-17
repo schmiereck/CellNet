@@ -27,7 +27,7 @@ public class FuzzyTest {
     }
 
     @Test
-    public void testFuzzy() {
+    public void testFuzzyRuleNr5() {
         final int maxValue = 7; // 3 Bit -> 0..7
         // Regel 5 - sie produziert asymmetrische Ausgaben für symmetrische Eingaben.
         // Regel 5: 00->1, 01->0, 10->1, 11->0
@@ -101,6 +101,79 @@ public class FuzzyTest {
                 0, // 11->0 { 5, 7 }
         };
 
+        assertOutputValues(ruleNr, maxValue, inputValueArrArr, outputValueArr);
+    }
+
+    @Test
+    public void testFuzzyRuleNr6() {
+        // Regel 6 (0b0110) oder Regel 9 (0b1001):
+        // Regel 6 (XOR): 00->0, 01->1, 10->1, 11->0
+        // Regel 9 (XNOR): 00->1, 01->0, 10->0, 11->1
+
+        final int maxValue = 7; // 3 Bit -> 0..7
+        // Regel 6 - Diese liefern für {7,5} und {5,7} identische Ergebnisse, da beide Eingaben die gleiche "Verschiedenheit" repräsentieren.
+        // Regel 6: (XOR): 00->0, 01->1, 10->1, 11->0
+        final int ruleNr = 0b110;
+
+        final int inputValueArrArr[][] = {
+                // A. (0 - 3)
+                { 0, 0 }, // 0b00
+                { 0, 1 }, // 0b01
+                { 1, 0 }, // 0b10
+                { 1, 1 }, // 0b11
+                // B. (4 - 7)
+                { 0, 0 }, // 0b00
+                { 0, 2 }, // 0b01
+                { 2, 0 }, // 0b10
+                { 2, 2 }, // 0b11
+                // C. (8 - 11)
+                { 0, 0 }, // 0b00
+                { 0, 7 }, // 0b01
+                { 7, 0 }, // 0b10
+                { 7, 7 }, // 0b11
+                // D. (12 - 15)
+                { 0, 0 }, // 0b00
+                { 0, 5 }, // 0b01
+                { 5, 0 }, // 0b10
+                { 7, 5 }, // 0b11
+                // E. (16 - 19)
+                { 2, 2 }, // 0b00
+                { 2, 7 }, // 0b01
+                { 7, 2 }, // 0b10
+                { 5, 7 }, // 0b11
+        };
+        final int outputValueArr[] = { // Regel 6: (XOR): 00->0, 01->1, 10->1, 11->0
+                // A. (0 - 3)
+                0, // 00->0
+                1, // 01->1
+                1, // 10->1
+                2, // 11->0
+                // B. (4 - 7)
+                0, // 00->0
+                2, // 01->1
+                2, // 10->1
+                3, // 11->0
+                // C. (8 - 11)
+                0, // 00->0
+                7, // 01->1
+                7, // 10->1
+                0, // 11->0 { 7, 7 }
+                // D. (12 - 15)
+                0, // 00->0
+                5, // 01->1
+                5, // 10->1
+                2, // 11->0 { 7, 5 }
+                // E. (16 - 19)
+                3, // 00->0
+                5, // 01->1
+                5, // 10->1
+                2, // 11->0 { 5, 7 }
+        };
+
+        assertOutputValues(ruleNr, maxValue, inputValueArrArr, outputValueArr);
+    }
+
+    private static void assertOutputValues(int ruleNr, int maxValue, int[][] inputValueArrArr, int[] outputValueArr) {
         for (int inputNr = 0; inputNr < inputValueArrArr.length; inputNr++) {
             final int leftValue = inputValueArrArr[inputNr][0];
             final int rightValue = inputValueArrArr[inputNr][1];
