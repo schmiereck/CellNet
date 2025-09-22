@@ -176,7 +176,9 @@ public class FuzzyTest {
     private static void assertOutputValues(int ruleNr, int maxValue, int[][] inputValueArrArr, int[] outputValueArr) {
         for (int inputNr = 0; inputNr < inputValueArrArr.length; inputNr++) {
             final int leftValue = inputValueArrArr[inputNr][0];
-            final int rightValue = inputValueArrArr[inputNr][1];
+                        final int rightValue = inputValueArrArr[inputNr][1];
+            // Of the three available fuzzy calculation methods (V1, Weighted, Interpolated), we use calcNewFuzzyValue_V1 here
+            // because it provides the baseline implementation and matches the expected output for these tests.
             final int value = calcNewFuzzyValue_V1(leftValue, rightValue, ruleNr, maxValue);
             //final int value = calcNewFuzzyValue_Weighted(leftValue, rightValue, ruleNr, maxValue);
             //final int value = calcNewFuzzyValue_Interpolated(leftValue, rightValue, ruleNr, maxValue);

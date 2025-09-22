@@ -26,9 +26,12 @@ public class GridService {
         return grid;
     }
 
-    public static Grid createGrid(final int[] rowSizeXArr, final int ruleNr) {
+    public static Grid createGrid(final int[] rowSizeXArr, final int sizeY, final int ruleNr) {
         // sizeY = Anzahl der Regel-Zeilen (ohne Input-Layer)
-        final int totalSizeY = rowSizeXArr.length + 1;
+        if (rowSizeXArr.length != sizeY) {
+            throw new IllegalArgumentException("rowSizeXArr.length (" + rowSizeXArr.length + ") does not match sizeY (" + sizeY + ")");
+        }
+        final int totalSizeY = sizeY + 1;
         final Grid grid = new Grid(totalSizeY);
         grid.rowArr = new Row[totalSizeY];
         for (int y = 0; y < totalSizeY; y++) {
@@ -127,34 +130,7 @@ public class GridService {
     }
 
     /**
-     * Erzeugt ein Grid, bei dem jede Zelle ab Zeile 1 ihre RuleNr entsprechend der Stellen im 256er-System von gridNr erhält.
-     * Die Zellen werden zeilenweise (y,x) von oben links nach unten rechts befüllt.
-     * Die erste Zeile (y=0) ist der Input-Layer und bekommt ruleNr=0.
-     */
-    public static Grid createGridForCombination(final int[] rowSizeXArr, final BigInteger gridNr) {
-        // sizeY = Anzahl der Regel-Zeilen (ohne Input-Layer)
-        final int totalSizeY = rowSizeXArr.length + 1;
-        final Grid grid = new Grid(totalSizeY);
-        grid.rowArr = new Row[totalSizeY];
-        java.math.BigInteger countNr = gridNr;
-        for (int y = 0; y < totalSizeY; y++) {
-            // Input-Layer (y=0) bekommt die Größe der ersten Regel-Zeile
-            final int rowSizeX = rowSizeXArr[y == 0 ? 0 : y - 1];
-
-            grid.rowArr[y] = new Row(rowSizeX);
-            grid.rowArr[y].cellArr = new Cell[rowSizeX];
-            for (int x = 0; x < rowSizeX; x++) {
-                final Cell cell = new Cell();
-                if (y == 0) {
-                    cell.ruleNr = 0; // Input-Layer
-                } else {
-                    cell.ruleNr = calcRuleNrByCountNr(countNr);
-                    countNr = calcNextCountNr(countNr);
-                }
-                cell.value = 0;
-                grid.rowArr[y].cellArr[x] = cell;
-            }
-        }
+     * @param rowSizeXArr Array of row sizes for each rule layer (not including input layer)        }
         return grid;
     }
 
