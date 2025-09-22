@@ -9,24 +9,6 @@ public class GridService {
     public static final int RULE_COUNT = 16;
     public static final int MAX_RULE_NR = 15;
 
-    /**
-     * Berechnet alle möglichen leftOffX/rightOffX Kombinationen für eine gegebene Breite der Parent-Row.
-     * Vermeidet Kombinationen wo leftOffX == rightOffX (gleiche Input-Position).
-     */
-    public static List<int[]> calculateOffsetCombinations(final int parentRowSizeX) {
-        final List<int[]> combinations = new ArrayList<>();
-
-        for (int leftOffX = 0; leftOffX < parentRowSizeX; leftOffX++) {
-            for (int rightOffX = 0; rightOffX < parentRowSizeX; rightOffX++) {
-                if (leftOffX != rightOffX) { // Verschiedene Input-Positionen
-                    combinations.add(new int[]{leftOffX, rightOffX});
-                }
-            }
-        }
-
-        return combinations;
-    }
-
     public static Grid createGridByRuleNr(final int sizeX, final int sizeY, final int ruleNr) {
         // sizeY = Anzahl der Regel-Zeilen (ohne Input-Layer)
         final int totalSizeY = sizeY + 1;
@@ -96,20 +78,18 @@ public class GridService {
 
     /**
      * Berechnet die maximale Anzahl der Offset-Kombinationen für die gegebenen Zeilegrößen.
+     * Nutzt die neue calculateOffsetCombinations-Logik ([i,i] und nur [1,0] für parentRowSizeX > 1).
      */
     public static int calcMaxOffsetCombinations(final int[] rowSizeXArr) {
         int maxCombinations = 1;
-
         for (int y = 1; y < rowSizeXArr.length; y++) {
             final int parentRowSizeX = rowSizeXArr[y - 1];
             final int currentRowSizeX = rowSizeXArr[y];
-
             if (currentRowSizeX > 0) {
-                final int combinationsForThisRow = parentRowSizeX * (parentRowSizeX - 1); // leftOffX != rightOffX
+                final int combinationsForThisRow = parentRowSizeX + ((parentRowSizeX > 1) ? 1 : 0);
                 maxCombinations *= Math.pow(combinationsForThisRow, currentRowSizeX);
             }
         }
-
         return maxCombinations;
     }
 
@@ -138,6 +118,24 @@ public class GridService {
             }
         }
         return retOffNr;
+    }
+
+    /**
+     * Berechnet alle möglichen leftOffX/rightOffX Kombinationen für eine gegebene Breite der Parent-Row.
+     * Erlaubt Kombinationen, bei denen beide Eingänge auf denselben Parent zeigen (z.B. [0,0], [1,1], ...).
+     * Zusätzlich nur die Kombination [1,0] für parentRowSizeX > 1.
+     */
+    public static List<int[]> calculateOffsetCombinations(final int parentRowSizeX) {
+        final List<int[]> combinations = new ArrayList<>();
+        // [i,i] Kombinationen
+        for (int i = 0; i < parentRowSizeX; i++) {
+            combinations.add(new int[]{i, i});
+        }
+        // Nur [1,0] Kombination für parentRowSizeX > 1
+        if (parentRowSizeX > 1) {
+            combinations.add(new int[]{1, 0});
+        }
+        return combinations;
     }
 
     public static void submitInput(final Grid grid, final int[] inputArr) {
