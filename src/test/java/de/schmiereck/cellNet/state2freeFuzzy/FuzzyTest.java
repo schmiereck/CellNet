@@ -177,9 +177,9 @@ public class FuzzyTest {
         for (int inputNr = 0; inputNr < inputValueArrArr.length; inputNr++) {
             final int leftValue = inputValueArrArr[inputNr][0];
             final int rightValue = inputValueArrArr[inputNr][1];
-            //final int value = calcNewFuzzyValue(leftValue, rightValue, ruleNr, maxValue);
+            final int value = calcNewFuzzyValue_V1(leftValue, rightValue, ruleNr, maxValue);
             //final int value = calcNewFuzzyValue_Weighted(leftValue, rightValue, ruleNr, maxValue);
-            final int value = calcNewFuzzyValue_Interpolated(leftValue, rightValue, ruleNr, maxValue);
+            //final int value = calcNewFuzzyValue_Interpolated(leftValue, rightValue, ruleNr, maxValue);
             final int expectedOutputValue = outputValueArr[inputNr];
 
             assert value == expectedOutputValue : "inputNr: " + inputNr + ", expectedValue: " + expectedOutputValue + ", value: " + value;

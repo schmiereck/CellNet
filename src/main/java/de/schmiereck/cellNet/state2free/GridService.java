@@ -27,25 +27,6 @@ public class GridService {
         return combinations;
     }
 
-    /**
-     * Berechnet die maximale Anzahl der Offset-Kombinationen für die gegebenen Zeilegrößen.
-     */
-    public static int calcMaxOffsetCombinations(final int[] rowSizeXArr) {
-        int maxCombinations = 1;
-
-        for (int i = 0; i < rowSizeXArr.length - 1; i++) {
-            final int parentRowSizeX = rowSizeXArr[i];
-            final int currentRowSizeX = rowSizeXArr[i + 1];
-
-            if (currentRowSizeX > 0) {
-                final int combinationsForThisRow = parentRowSizeX * (parentRowSizeX - 1); // leftOffX != rightOffX
-                maxCombinations *= Math.pow(combinationsForThisRow, currentRowSizeX);
-            }
-        }
-
-        return maxCombinations;
-    }
-
     public static Grid createGridByRuleNr(final int sizeX, final int sizeY, final int ruleNr) {
         // sizeY = Anzahl der Regel-Zeilen (ohne Input-Layer)
         final int totalSizeY = sizeY + 1;
@@ -105,31 +86,58 @@ public class GridService {
                 cell.ruleNr = ruleNr;
                 cell.value = 0;
 
-                if (y == 0) {
-                    // Input-Layer: Standard-Offsets
-                    cell.leftOffX = 0;
-                    cell.rightOffX = Cell.RIGHT_OFF_X;
-                } else {
-                    // Regel-Zeilen: Offsets basierend auf offNr berechnen
-                    final int parentRowSizeX = rowSizeXArr[y - 1];
-                    final List<int[]> offsetCombinations = calculateOffsetCombinations(parentRowSizeX);
-
-                    if (!offsetCombinations.isEmpty()) {
-                        final int[] selectedOffset = offsetCombinations.get(currentOffNr % offsetCombinations.size());
-                        cell.leftOffX = selectedOffset[0];
-                        cell.rightOffX = selectedOffset[1];
-                        currentOffNr = currentOffNr / offsetCombinations.size();
-                    } else {
-                        // Fallback auf Standard-Offsets
-                        cell.leftOffX = 0;
-                        cell.rightOffX = Cell.RIGHT_OFF_X;
-                    }
-                }
+                currentOffNr = calcOffsetsForOffNr(cell, rowSizeXArr, y, currentOffNr);
 
                 grid.rowArr[y].cellArr[x] = cell;
             }
         }
         return grid;
+    }
+
+    /**
+     * Berechnet die maximale Anzahl der Offset-Kombinationen für die gegebenen Zeilegrößen.
+     */
+    public static int calcMaxOffsetCombinations(final int[] rowSizeXArr) {
+        int maxCombinations = 1;
+
+        for (int y = 1; y < rowSizeXArr.length; y++) {
+            final int parentRowSizeX = rowSizeXArr[y - 1];
+            final int currentRowSizeX = rowSizeXArr[y];
+
+            if (currentRowSizeX > 0) {
+                final int combinationsForThisRow = parentRowSizeX * (parentRowSizeX - 1); // leftOffX != rightOffX
+                maxCombinations *= Math.pow(combinationsForThisRow, currentRowSizeX);
+            }
+        }
+
+        return maxCombinations;
+    }
+
+    public static int calcOffsetsForOffNr(final Cell cell, final int[] rowSizeXArr, final int y, final int currentOffNr) {
+        final int retOffNr;
+        if (y == 0) {
+            // Input-Layer: Standard-Offsets
+            cell.leftOffX = 0;
+            cell.rightOffX = Cell.RIGHT_OFF_X;
+            retOffNr = currentOffNr;
+        } else {
+            // Regel-Zeilen: Offsets basierend auf offNr berechnen
+            final int parentRowSizeX = rowSizeXArr[y - 1];
+            final List<int[]> offsetCombinations = calculateOffsetCombinations(parentRowSizeX);
+
+            if (!offsetCombinations.isEmpty()) {
+                final int[] selectedOffset = offsetCombinations.get(currentOffNr % offsetCombinations.size());
+                cell.leftOffX = selectedOffset[0];
+                cell.rightOffX = selectedOffset[1];
+                retOffNr = currentOffNr / offsetCombinations.size();
+            } else {
+                // Fallback auf Standard-Offsets
+                cell.leftOffX = 0;
+                cell.rightOffX = Cell.RIGHT_OFF_X;
+                retOffNr = currentOffNr;
+            }
+        }
+        return retOffNr;
     }
 
     public static void submitInput(final Grid grid, final int[] inputArr) {
@@ -261,31 +269,5 @@ public class GridService {
 
     private static BigInteger calcNextCountNr(BigInteger countNr) {
         return countNr.divide(BigInteger.valueOf(RULE_COUNT));
-    }
-
-    public static void main(String[] args) {
-        testCheckGeneratedRuleCombinations();
-    }
-
-    private static void testCheckGeneratedRuleCombinations() {
-        final int[] rowSizeXArr = new int[]{2, 2}; // Input-Layer und eine Regel-Zeile
-
-        final BigInteger maxGridNr = calcMaxGridNr(rowSizeXArr);
-
-        BigInteger gridCount = BigInteger.valueOf(0L);
-        while (gridCount.compareTo(maxGridNr) < 0) {
-            System.out.printf("GridNr: %6d ", gridCount);
-            final Grid grid = createGridForCombination(rowSizeXArr, gridCount);
-
-            for (int y = 0; y < grid.sizeY; y++) {
-                final Row row = grid.rowArr[y];
-                for (int x = 0; x < row.sizeX; x++) {
-                    final Cell cell = row.cellArr[x];
-                    System.out.printf("%3d ", cell.ruleNr);
-                }
-            }
-            gridCount = gridCount.add(BigInteger.valueOf(1L));
-            System.out.println();
-        }
     }
 }

@@ -26,9 +26,9 @@ public class GridService {
         return grid;
     }
 
-    public static Grid createGrid(final int[] rowSizeXArr, final int sizeY, final int ruleNr) {
+    public static Grid createGrid(final int[] rowSizeXArr, final int ruleNr) {
         // sizeY = Anzahl der Regel-Zeilen (ohne Input-Layer)
-        final int totalSizeY = sizeY + 1;
+        final int totalSizeY = rowSizeXArr.length + 1;
         final Grid grid = new Grid(totalSizeY);
         grid.rowArr = new Row[totalSizeY];
         for (int y = 0; y < totalSizeY; y++) {
@@ -131,9 +131,9 @@ public class GridService {
      * Die Zellen werden zeilenweise (y,x) von oben links nach unten rechts befüllt.
      * Die erste Zeile (y=0) ist der Input-Layer und bekommt ruleNr=0.
      */
-    public static Grid createGridForCombination(final int[] rowSizeXArr, final int sizeY, final java.math.BigInteger gridNr) {
+    public static Grid createGridForCombination(final int[] rowSizeXArr, final BigInteger gridNr) {
         // sizeY = Anzahl der Regel-Zeilen (ohne Input-Layer)
-        final int totalSizeY = sizeY + 1;
+        final int totalSizeY = rowSizeXArr.length + 1;
         final Grid grid = new Grid(totalSizeY);
         grid.rowArr = new Row[totalSizeY];
         java.math.BigInteger countNr = gridNr;
@@ -177,32 +177,5 @@ public class GridService {
 
     private static BigInteger calcNextCountNr(BigInteger countNr) {
         return countNr.divide(BigInteger.valueOf(RULE_COUNT));
-    }
-
-    public static void main(String[] args) {
-        testCheckGeneratedRuleCombinations();
-    }
-
-    private static void testCheckGeneratedRuleCombinations() {
-        final int[] rowSizeXArr = new int[]{2, 2}; // Input-Layer und eine Regel-Zeile
-        final int sizeY = 1;
-
-        final BigInteger maxGridNr = calcMaxGridNr(rowSizeXArr);
-
-        BigInteger gridCount = BigInteger.valueOf(0L);
-        while (gridCount.compareTo(maxGridNr) < 0) {
-            System.out.printf("GridNr: %6d ", gridCount);
-            final Grid grid = createGridForCombination(rowSizeXArr, sizeY, gridCount);
-
-            for (int y = 0; y < grid.sizeY; y++) {
-                final Row row = grid.rowArr[y];
-                for (int x = 0; x < row.sizeX; x++) {
-                    final Cell cell = row.cellArr[x];
-                    System.out.printf("%3d ", cell.ruleNr);
-                }
-            }
-            gridCount = gridCount.add(BigInteger.valueOf(1L));
-            System.out.println();
-        }
     }
 }

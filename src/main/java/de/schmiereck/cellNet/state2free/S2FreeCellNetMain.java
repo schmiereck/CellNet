@@ -693,16 +693,16 @@ public class S2FreeCellNetMain {
             for (int t = 0; t < numThreads; t++) {
                 futureList.add(executor.submit(() -> {
                     while (true) {
-                        final BigInteger start, end;
+                        final BigInteger startGridNr, endGridNr;
                         synchronized (blockLock) {
                             if (nextBlockStart[0].compareTo(maxGridNr) >= 0) {
                                 break;
                             }
-                            start = nextBlockStart[0];
-                            end = start.add(blockSize).min(maxGridNr);
-                            nextBlockStart[0] = end;
+                            startGridNr = nextBlockStart[0];
+                            endGridNr = startGridNr.add(blockSize).min(maxGridNr);
+                            nextBlockStart[0] = endGridNr;
                         }
-                        for (BigInteger gridNr = start; gridNr.compareTo(end) < 0; gridNr = gridNr.add(BigInteger.ONE)) {
+                        for (BigInteger gridNr = startGridNr; gridNr.compareTo(endGridNr) < 0; gridNr = gridNr.add(BigInteger.ONE)) {
                             final Grid grid = GridService.createGridForCombination(rowSizeXArr, gridNr);
                             boolean allInputsMatch = true;
                             inputArrArrPosLoop:

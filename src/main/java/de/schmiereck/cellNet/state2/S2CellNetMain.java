@@ -1,7 +1,5 @@
 package de.schmiereck.cellNet.state2;
 
-import de.schmiereck.cellNet.state3.S3CellNetMain;
-
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -487,7 +485,7 @@ public class S2CellNetMain {
         final Integer universalRuleNr = findUniversalMatchingRuleNr(matchingRuleNrListArr);
         if (Objects.nonNull(universalRuleNr)) {
             System.out.printf("Universelle RuleNr (für alle Operationen gültig): %d%n", universalRuleNr);
-            final Grid universalGrid = GridService.createGrid(rowSizeXArr, sizeY, universalRuleNr);
+            final Grid universalGrid = GridService.createGrid(rowSizeXArr, universalRuleNr);
             printGridRuleNr(universalGrid);
         } else {
             System.out.println("Keine universelle RuleNr gefunden, die für alle Operationen gültig ist.");
@@ -508,7 +506,7 @@ public class S2CellNetMain {
                 if (Objects.nonNull(universalGridNr)) {
                     System.out.printf("Universelle GridNr (für alle Operationen gültig): %d%n", universalGridNr);
                     // Create and show the universal grid
-                    final Grid universalGrid = GridService.createGridForCombination(rowSizeXArr, sizeY, universalGridNr);
+                    final Grid universalGrid = GridService.createGridForCombination(rowSizeXArr, universalGridNr);
                     printGridRuleNr(universalGrid);
                     break outerLoop;
                 } else {
@@ -525,7 +523,7 @@ public class S2CellNetMain {
         if (Objects.nonNull(universalGridNr)) {
             System.out.printf("Universelle GridNr (für alle Operationen gültig): %d%n", universalGridNr);
             // Create and show the universal grid
-            final Grid universalGrid = GridService.createGridForCombination(rowSizeXArr, sizeY, universalGridNr);
+            final Grid universalGrid = GridService.createGridForCombination(rowSizeXArr, universalGridNr);
             printGridRuleNr(universalGrid);
         } else {
             System.out.println("Keine universelle GridNr gefunden, die für alle Operationen gültig ist.");
@@ -614,7 +612,7 @@ public class S2CellNetMain {
                 boolean allInputsMatch = true;
                 for (int inputArrArrPos = 0; inputArrArrPos < inputArrArr.length && allInputsMatch; inputArrArrPos++) {
                     final int[] inputArr = inputArrArr[inputArrArrPos];
-                    final Grid grid = GridService.createGrid(rowSizeXArr, sizeY, ruleNr);
+                    final Grid grid = GridService.createGrid(rowSizeXArr, ruleNr);
                     GridService.submitInput(grid, inputArr);
                     CellNetService.calcGrid(grid);
                     final int[] outputArr = GridService.retieveOutput(grid);
@@ -702,7 +700,7 @@ public class S2CellNetMain {
                             nextBlockStart[0] = end;
                         }
                         for (BigInteger gridNr = start; gridNr.compareTo(end) < 0; gridNr = gridNr.add(BigInteger.ONE)) {
-                            final Grid grid = GridService.createGridForCombination(rowSizeXArr, sizeY, gridNr);
+                            final Grid grid = GridService.createGridForCombination(rowSizeXArr, gridNr);
                             boolean allInputsMatch = true;
                             inputArrArrPosLoop:
                             for (int inputArrArrPos = 0; inputArrArrPos < inputArrArr.length; inputArrArrPos++) {
@@ -816,7 +814,7 @@ public class S2CellNetMain {
         for (int inputArrArrPos = 0; inputArrArrPos < inputArrArr.length; inputArrArrPos++) {
             final int[] inputArr = inputArrArr[inputArrArrPos];
             final int[] expectedOutputArr = expectedOutputArrArr[inputArrArrPos];
-            final Grid grid = GridService.createGrid(rowSizeXArr, sizeY, ruleNr);
+            final Grid grid = GridService.createGrid(rowSizeXArr, ruleNr);
             GridService.submitInput(grid, inputArr);
             CellNetService.calcGrid(grid);
             final int[] outputArr = GridService.retieveOutput(grid);

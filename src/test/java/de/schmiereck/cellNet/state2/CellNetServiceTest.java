@@ -1,7 +1,9 @@
 package de.schmiereck.cellNet.state2;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -119,7 +121,7 @@ public class CellNetServiceTest {
             java.math.BigInteger.valueOf(255)
         };
         for (java.math.BigInteger gridNr : testGridNrs) {
-            Grid grid = GridService.createGridForCombination(rowSizeXArr, sizeY, gridNr);
+            Grid grid = GridService.createGridForCombination(rowSizeXArr, gridNr);
             // Input-Layer (y=0) muss ruleNr=0 haben
             for (int x = 0; x < rowSizeXArr[0]; x++) {
                 assertEquals(0, grid.rowArr[0].cellArr[x].ruleNr, "Input-Layer ruleNr muss 0 sein");
@@ -190,5 +192,75 @@ public class CellNetServiceTest {
         }
         // Rückgabe als int[]
         return uniquePatternToRule;
+    }
+
+    @Test
+    public void testCheckGeneratedRuleCombinations() {
+        final int[] rowSizeXArr = new int[]{2, 2}; // Input-Layer und eine Regel-Zeile
+
+        final BigInteger maxGridNr = GridService.calcMaxGridNr(rowSizeXArr);
+
+        BigInteger gridNr = BigInteger.valueOf(0L);
+        while (gridNr.compareTo(maxGridNr) < 0) {
+            //System.out.printf("GridNr: %6d ", gridNr);
+            final Grid grid = GridService.createGridForCombination(rowSizeXArr, gridNr);
+
+            for (int y = 0; y < grid.sizeY; y++) {
+                final Row row = grid.rowArr[y];
+                for (int x = 0; x < row.sizeX; x++) {
+                    final Cell cell = row.cellArr[x];
+                    //System.out.printf("%3d ", cell.ruleNr);
+                }
+            }
+
+            switch (gridNr.intValue()) {
+                case 0 -> {
+                    assertEqualsCellRuleNrArr(gridNr, grid, 0, new int[] { 0, 0 });
+                    assertEqualsCellRuleNrArr(gridNr, grid, 1, new int[] { 0, 0 });
+                    assertEqualsCellRuleNrArr(gridNr, grid, 2, new int[] { 0, 0 });
+                }
+                case 1 -> {
+                    assertEqualsCellRuleNrArr(gridNr, grid, 0, new int[] { 0, 0 });
+                    assertEqualsCellRuleNrArr(gridNr, grid, 1, new int[] { 1, 0 });
+                    assertEqualsCellRuleNrArr(gridNr, grid, 2, new int[] { 0, 0 });
+                }
+                case 2 -> {
+                    assertEqualsCellRuleNrArr(gridNr, grid, 0, new int[] { 0, 0 });
+                    assertEqualsCellRuleNrArr(gridNr, grid, 1, new int[] { 2, 0 });
+                    assertEqualsCellRuleNrArr(gridNr, grid, 2, new int[] { 0, 0 });
+                }
+                case 3 -> {
+                    assertEqualsCellRuleNrArr(gridNr, grid, 0, new int[] { 0, 0 });
+                    assertEqualsCellRuleNrArr(gridNr, grid, 1, new int[] { 3, 0 });
+                    assertEqualsCellRuleNrArr(gridNr, grid, 2, new int[] { 0, 0 });
+                }
+                case 39327 -> {
+                    assertEqualsCellRuleNrArr(gridNr, grid, 0, new int[] {  0,  0 });
+                    assertEqualsCellRuleNrArr(gridNr, grid, 1, new int[] { 15,  9 });
+                    assertEqualsCellRuleNrArr(gridNr, grid, 2, new int[] {  9,  9 });
+                }
+                case 39328 -> {
+                    assertEqualsCellRuleNrArr(gridNr, grid, 0, new int[] {  0,  0 });
+                    assertEqualsCellRuleNrArr(gridNr, grid, 1, new int[] {  0, 10 });
+                    assertEqualsCellRuleNrArr(gridNr, grid, 2, new int[] {  9,  9 });
+                }
+                case 65535 -> {
+                    assertEqualsCellRuleNrArr(gridNr, grid, 0, new int[] {  0,  0 });
+                    assertEqualsCellRuleNrArr(gridNr, grid, 1, new int[] { 15, 15 });
+                    assertEqualsCellRuleNrArr(gridNr, grid, 2, new int[] { 15, 15 });
+                }
+            }
+
+            gridNr = gridNr.add(BigInteger.valueOf(1L));
+            //System.out.println();
+        }
+    }
+
+    private static void assertEqualsCellRuleNrArr(final BigInteger gridNr, final Grid grid, final int y, final int[] cellRuleNrArr) {
+        final Row row = grid.rowArr[y];
+        for (int x = 0; x < row.sizeX; x++) {
+            final Cell cell = row.cellArr[x];
+            Assertions.assertEquals(cellRuleNrArr[x], cell.ruleNr, "Grid-Nr: %s (x: %d, y: %d)".formatted(gridNr.toString(), x, y));
+        }
     }
 }
