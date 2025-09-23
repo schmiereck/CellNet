@@ -15,17 +15,18 @@ public class S2FreeTest {
     @Test
     public void testCheckGeneratedRuleCombinationsI2O2Visible() {
         final int[] rowSizeXArr = new int[]{2, 2}; // Input-Layer und eine Regel-Zeile
+        final boolean noCommutative = false;
 
         final int maxRuleNr = GridService.calcMaxRuleNr();
         final BigInteger maxGridNr = GridService.calcMaxGridNr(rowSizeXArr);
-        final int maxOffNr = GridService.calcMaxOffsetCombinations(rowSizeXArr);
+        final int maxOffNr = GridService.calcMaxOffsetCombinations(rowSizeXArr, noCommutative);
 
         Assertions.assertEquals(16, maxOffNr);
 
         for (int offNr = 0; offNr <= maxOffNr; offNr++) {
             //System.out.printf("GridNr: %6d ", gridNr);
             final int ruleNr = 0;
-            final Grid grid = GridService.createGridByRuleNrAndOffNr(rowSizeXArr, ruleNr, offNr);
+            final Grid grid = GridService.createGridByRuleNrAndOffNr(rowSizeXArr, ruleNr, offNr, noCommutative);
 
             for (int y = 0; y < grid.sizeY; y++) {
                 final Row row = grid.rowArr[y];
@@ -214,19 +215,47 @@ public class S2FreeTest {
     @Test
     public void testCheckGeneratedRuleCombinationsI2O2() {
         final int[] rowSizeXArr = new int[]{2, 2}; // Input-Layer und eine Regel-Zeile
+        final boolean noCommutative = false;
+
         final int parentRowSizeX = rowSizeXArr[0];
         final int childRowSizeX = rowSizeXArr[1];
         final int combinationsPerCell = parentRowSizeX * parentRowSizeX;
-        final int maxOffNr = (int)Math.pow(combinationsPerCell, childRowSizeX);
+        final int maxOffNr = GridService.calcMaxOffsetCombinations(rowSizeXArr, noCommutative);
         Assertions.assertEquals(16, maxOffNr);
         // Prüfe für jede OffNr, ob die Kombinationen korrekt verteilt werden
         for (int offNr = 0; offNr < maxOffNr; offNr++) {
-            final Grid grid = GridService.createGridByRuleNrAndOffNr(rowSizeXArr, 0, offNr);
+            final Grid grid = GridService.createGridByRuleNrAndOffNr(rowSizeXArr, 0, offNr, noCommutative);
             // Prüfe für jede Zelle der Regelzeile
             int tmp = offNr;
             for (int x = 0; x < childRowSizeX; x++) {
                 int idx = tmp % combinationsPerCell;
-                int[] expected = GridService.calculateOffsetCombinations(parentRowSizeX).get(idx);
+                int[] expected = GridService.calculateOffsetCombinations(parentRowSizeX, noCommutative).get(idx);
+                Cell cell = grid.rowArr[1].cellArr[x];
+                Assertions.assertEquals(expected[0], cell.leftOffX, "offNr: %d, cell: %d left".formatted(offNr, x));
+                Assertions.assertEquals(expected[1], cell.rightOffX, "offNr: %d, cell: %d right".formatted(offNr, x));
+                tmp /= combinationsPerCell;
+            }
+        }
+    }
+
+    @Test
+    public void testCheckGeneratedRuleCombinationsI2O2NoCommutative() {
+        final int[] rowSizeXArr = new int[]{2, 2}; // Input-Layer und eine Regel-Zeile
+        final boolean noCommutative = true;
+
+        final int parentRowSizeX = rowSizeXArr[0];
+        final int childRowSizeX = rowSizeXArr[1];
+        final int combinationsPerCell = parentRowSizeX * parentRowSizeX;
+        final int maxOffNr = GridService.calcMaxOffsetCombinations(rowSizeXArr, noCommutative);
+        Assertions.assertEquals(9, maxOffNr);
+        // Prüfe für jede OffNr, ob die Kombinationen korrekt verteilt werden
+        for (int offNr = 0; offNr < maxOffNr; offNr++) {
+            final Grid grid = GridService.createGridByRuleNrAndOffNr(rowSizeXArr, 0, offNr, noCommutative);
+            // Prüfe für jede Zelle der Regelzeile
+            int tmp = offNr;
+            for (int x = 0; x < childRowSizeX; x++) {
+                int idx = tmp % combinationsPerCell;
+                int[] expected = GridService.calculateOffsetCombinations(parentRowSizeX, noCommutative).get(idx);
                 Cell cell = grid.rowArr[1].cellArr[x];
                 Assertions.assertEquals(expected[0], cell.leftOffX, "offNr: %d, cell: %d left".formatted(offNr, x));
                 Assertions.assertEquals(expected[1], cell.rightOffX, "offNr: %d, cell: %d right".formatted(offNr, x));
@@ -238,17 +267,19 @@ public class S2FreeTest {
     @Test
     public void testCheckGeneratedRuleCombinationsI3O3() {
         final int[] rowSizeXArr = new int[]{3, 3}; // Input-Layer und eine Regel-Zeile
+        final boolean noCommutative = false;
+
         final int parentRowSizeX = rowSizeXArr[0];
         final int childRowSizeX = rowSizeXArr[1];
         final int combinationsPerCell = parentRowSizeX * parentRowSizeX;
         final int maxOffNr = (int)Math.pow(combinationsPerCell, childRowSizeX);
         Assertions.assertEquals(729, maxOffNr);
         for (int offNr = 0; offNr < maxOffNr; offNr++) {
-            final Grid grid = GridService.createGridByRuleNrAndOffNr(rowSizeXArr, 0, offNr);
+            final Grid grid = GridService.createGridByRuleNrAndOffNr(rowSizeXArr, 0, offNr, noCommutative);
             int tmp = offNr;
             for (int x = 0; x < childRowSizeX; x++) {
                 int idx = tmp % combinationsPerCell;
-                int[] expected = GridService.calculateOffsetCombinations(parentRowSizeX).get(idx);
+                int[] expected = GridService.calculateOffsetCombinations(parentRowSizeX, noCommutative).get(idx);
                 Cell cell = grid.rowArr[1].cellArr[x];
                 Assertions.assertEquals(expected[0], cell.leftOffX, "offNr: %d, cell: %d left".formatted(offNr, x));
                 Assertions.assertEquals(expected[1], cell.rightOffX, "offNr: %d, cell: %d right".formatted(offNr, x));

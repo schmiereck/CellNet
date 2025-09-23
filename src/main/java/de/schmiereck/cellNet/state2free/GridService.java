@@ -28,22 +28,26 @@ public class GridService {
         return grid;
     }
 
-    public static Grid createGridByRuleNr(final int[] rowSizeXArr, final int ruleNr) {
+    public static Grid createGridByRuleNr(final int[] rowSizeXArr, final int ruleNr,
+                                          final boolean noCommutative) {
         final int offNr = 0;
-        return createGridByRuleNrAndOffNr(rowSizeXArr, ruleNr, offNr);
+        return createGridByRuleNrAndOffNr(rowSizeXArr, ruleNr, offNr, noCommutative);
     }
 
-    public static Grid createGridByRuleOffNr(final int[] rowSizeXArr, final int ruleOffNr) {
-        final int maxOffsetCombinations = GridService.calcMaxOffsetCombinations(rowSizeXArr);
+    public static Grid createGridByRuleOffNr(final int[] rowSizeXArr, final int ruleOffNr,
+                                             final boolean noCommutative) {
+        final int maxOffsetCombinations = GridService.calcMaxOffsetCombinations(rowSizeXArr, noCommutative);
         final int ruleNr = ruleOffNr / maxOffsetCombinations;
         final int offNr = ruleOffNr % maxOffsetCombinations;
-        return createGridByRuleNrAndOffNr(rowSizeXArr, ruleNr, offNr);
+        return createGridByRuleNrAndOffNr(rowSizeXArr, ruleNr, offNr, noCommutative);
     }
 
     /**
      * Erweiterte createGrid Methode mit offNr Parameter für verschiedene Offset-Kombinationen.
      */
-    public static Grid createGridByRuleNrAndOffNr(final int[] rowSizeXArr, final int ruleNr, final int offNr) {
+    public static Grid createGridByRuleNrAndOffNr(final int[] rowSizeXArr,
+                                                  final int ruleNr, final int offNr,
+                                                  final boolean noCommutative) {
         // sizeY = Anzahl der Regel-Zeilen (ohne Input-Layer)
         final int totalSizeY = rowSizeXArr.length + 1;
         final Grid grid = new Grid(totalSizeY);
@@ -63,7 +67,7 @@ public class GridService {
                 cell.ruleNr = ruleNr;
                 cell.value = 0;
 
-                currentOffNr = calcOffsetsForOffNr(cell, rowSizeXArr, y, currentOffNr);
+                currentOffNr = calcOffsetsForOffNr(cell, rowSizeXArr, y, currentOffNr, noCommutative);
 
                 grid.rowArr[y].cellArr[x] = cell;
             }
@@ -74,12 +78,20 @@ public class GridService {
     /**
      * Berechnet die maximale Anzahl der Offset-Kombinationen für die gegebenen Zeilegrößen.
      * Nutzt die neue calculateOffsetCombinations-Logik ([i,i] und nur [1,0] für parentRowSizeX > 1).
+     * keine kommutative Kombinationen:
+     * wobei vertauschte Kombinationen (a,b) und (b,a) als identisch gelten (nur a <= b).
      */
-    public static int calcMaxOffsetCombinations(final int[] rowSizeXArr) {
+    public static int calcMaxOffsetCombinations(final int[] rowSizeXArr, final boolean noCommutative) {
         int maxCombinations = 1;
         for (int y = 1; y < rowSizeXArr.length; y++) {
             int parentRowSizeX = rowSizeXArr[y - 1];
-            int combinationsPerCell = parentRowSizeX * parentRowSizeX;
+            int combinationsPerCell;
+            if (noCommutative) {
+                // Kommutative Kombinationen pro Zelle in der aktuellen Zeile nicht prüfen.
+                combinationsPerCell = (parentRowSizeX * (parentRowSizeX + 1)) / 2;
+            } else {
+                combinationsPerCell = parentRowSizeX * parentRowSizeX;
+            }
             int currentRowSizeX = rowSizeXArr[y];
             for (int x = 0; x < currentRowSizeX; x++) {
                 maxCombinations *= combinationsPerCell;
@@ -88,7 +100,9 @@ public class GridService {
         return maxCombinations;
     }
 
-    public static int calcOffsetsForOffNr(final Cell cell, final int[] rowSizeXArr, final int y, final int currentOffNr) {
+    public static int calcOffsetsForOffNr(final Cell cell,
+                                          final int[] rowSizeXArr, final int y, final int currentOffNr,
+                                          final boolean noCommutative) {
         final int retOffNr;
         if (y == 0) {
             // Input-Layer: Standard-Offsets
@@ -98,7 +112,7 @@ public class GridService {
         } else {
             // Regel-Zeilen: Offsets basierend auf offNr berechnen
             final int parentRowSizeX = rowSizeXArr[y - 1];
-            final List<int[]> offsetCombinations = calculateOffsetCombinations(parentRowSizeX);
+            final List<int[]> offsetCombinations = calculateOffsetCombinations(parentRowSizeX, noCommutative);
 
             if (!offsetCombinations.isEmpty()) {
                 final int[] selectedOffset = offsetCombinations.get(currentOffNr % offsetCombinations.size());
@@ -118,12 +132,21 @@ public class GridService {
     /**
      * Berechnet alle möglichen Offset-Kombinationen für zwei Eingänge (z.B. leftOffX, rightOffX) und beliebig viele Parents.
      * Gibt alle n*n Kombinationen zurück (auch [0,1] und [1,0] etc.).
+     * keine kommutative Kombinationen:
+     * wobei vertauschte Kombinationen (a,b) und (b,a) als identisch gelten (nur a <= b).
+     * Gibt alle n*(n+1)/2 Kombinationen zurück (z.B. [0,0], [0,1], [1,1] ...).
      */
-    public static List<int[]> calculateOffsetCombinations(final int parentRowSizeX) {
+    public static List<int[]> calculateOffsetCombinations(final int parentRowSizeX, final boolean noCommutative) {
         final List<int[]> combinations = new ArrayList<>();
         for (int i = 0; i < parentRowSizeX; i++) {
-            for (int j = 0; j < parentRowSizeX; j++) {
-                combinations.add(new int[]{i, j});
+            if (noCommutative) {
+                for (int j = i; j < parentRowSizeX; j++) {
+                    combinations.add(new int[]{i, j});
+                }
+            } else {
+                for (int j = 0; j < parentRowSizeX; j++) {
+                    combinations.add(new int[]{i, j});
+                }
             }
         }
         return combinations;
