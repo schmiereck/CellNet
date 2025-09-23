@@ -18,7 +18,7 @@ public class S2FreeCellNetMain {
         //findTestRuleNumbersI2O2(); // No universal Solution.
         //findTestRuleNumbersI2O2Deep(); // Works.
 
-        //findBooleanAndRuleNumbersI2O1();      // AND:     size: 2, 2+1 [7, 8]
+        findBooleanAndRuleNumbersI2O1();      // AND:     size: 2, 2+1 [7, 8]
         //findBooleanOrRuleNumbersI2O1();       // OR:      size: 2, 2+1 [1, 14]
         //findBooleanNandRuleNumbersI2O1();     // NAND:    size: 2, 3+1 [7]
         //findBooleanNorRuleNumbersI2O1();      // NOR:     size: 2, 3+1 [1]
@@ -38,7 +38,7 @@ public class S2FreeCellNetMain {
         //findBooleanRuleNumbersI2O2(); // No universal Solution.
         //findBooleanRuleNumbersI2O1Deep(); // Runs years...
 
-        findCountRuleNumbersI2O2(); // No universal Solution.
+        //findCountRuleNumbersI2O2(); // No universal Solution.
         //findCountRuleNumbersI2O2Deep(); // Find GridNr: 14787
         //findCountRuleNumbersI3O3Deep(); // Runs years...
     }
@@ -138,7 +138,7 @@ public class S2FreeCellNetMain {
 
         final int[] rowSizeXArr = new int[] { 2, 1 }; // Input-Layer und eine Regel-Zeile
         final int sizeY = 1;
-        final boolean noCommutative = false;
+        final boolean noCommutative = true;
 
         findUniversalRuleOffNr(opOutputArr, rowSizeXArr, noCommutative);
     }
