@@ -20,48 +20,6 @@ public class S2FreeTest {
         final BigInteger maxGridNr = GridService.calcMaxGridNr(rowSizeXArr);
         final int maxOffNr = GridService.calcMaxOffsetCombinations(rowSizeXArr);
 
-        // 0 1
-        // 2 3
-        // 4 5
-
-        // offNr: 0
-        // 0:[0,1], 1:[0,1]
-        // 2:[0,0], 3:[0,0]
-        // 3:[0,0], 4:[0,0]
-
-        // offNr: 2
-        // 0:[0,1], 1:[0,1]
-        // 2:[1,0], 3:[0,0]
-        // 3:[0,0], 4:[0,0]
-
-        // offNr: 3
-        // 0:[0,1], 1:[0,1]
-        // 2:[1,1], 3:[0,0]
-        // 3:[0,0], 4:[0,0]
-
-        // offNr: 4
-        // 0:[0,1], 1:[0,1]
-        // 2:[0,0], 3:[1,0]
-        // 3:[0,0], 4:[0,0]
-
-        // offNr: 5
-        // 0:[0,1], 1:[0,1]
-        // 2:[1,0], 3:[1,0]
-        // 3:[0,0], 4:[0,0]
-
-        // offNr: 6
-        // 0:[0,1], 1:[0,1]
-        // 2:[1,1], 3:[1,0]
-        // 3:[0,0], 4:[0,0]
-
-        // offNr: 7
-        // 0:[0,1], 1:[0,1]
-        // 2:[1,1], 3:[1,1]
-        // 3:[0,0], 4:[0,0]
-
-        // offNr: 8
-        // ...
-
         Assertions.assertEquals(16, maxOffNr);
 
         for (int offNr = 0; offNr <= maxOffNr; offNr++) {
