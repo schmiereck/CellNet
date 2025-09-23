@@ -12,7 +12,7 @@ public class S2FreeTest {
     }
 
     @Test
-    public void testCheckGeneratedRuleCombinations() {
+    public void testCheckGeneratedRuleCombinationsI2O2() {
         final int[] rowSizeXArr = new int[]{2, 2}; // Input-Layer und eine Regel-Zeile
 
         final int maxRuleNr = GridService.calcMaxRuleNr();
@@ -131,6 +131,12 @@ public class S2FreeTest {
 
             //System.out.println();
         }
+    }
+
+    @Test
+    public void testCheckGeneratedRuleCombinationsI3O3() {
+        final int[] rowSizeXArr = new int[]{3, 3}; // Input-Layer und eine Regel-Zeile
+
     }
 
     private static void assertEqualsCellRuleNrArr(final int offNr, final Grid grid, final int y, final int[][] cellOffArr) {
