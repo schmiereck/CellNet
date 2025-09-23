@@ -78,14 +78,11 @@ public class GridService {
     public static int calcMaxOffsetCombinations(final int[] rowSizeXArr) {
         int maxCombinations = 1;
         for (int y = 1; y < rowSizeXArr.length; y++) {
-            final int parentRowSizeX = rowSizeXArr[y - 1];
-            final int currentRowSizeX = rowSizeXArr[y];
-            if (currentRowSizeX > 0) {
-                int combinationsForThisRow = 1;
-                for (int i = 0; i < currentRowSizeX; i++) {
-                    combinationsForThisRow *= parentRowSizeX * parentRowSizeX;
-                }
-                maxCombinations *= combinationsForThisRow;
+            int parentRowSizeX = rowSizeXArr[y - 1];
+            int combinationsPerCell = parentRowSizeX * parentRowSizeX;
+            int currentRowSizeX = rowSizeXArr[y];
+            for (int x = 0; x < currentRowSizeX; x++) {
+                maxCombinations *= combinationsPerCell;
             }
         }
         return maxCombinations;
