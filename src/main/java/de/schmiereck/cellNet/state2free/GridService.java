@@ -28,11 +28,6 @@ public class GridService {
         return grid;
     }
 
-    private static int calcMaxOffsetCombinations(int cellCount) {
-        return 1 << cellCount;
-    }
-
-
     public static Grid createGridByRuleNr(final int[] rowSizeXArr, final int ruleNr) {
         final int offNr = 0;
         return createGridByRuleNrAndOffNr(rowSizeXArr, ruleNr, offNr);
@@ -86,8 +81,11 @@ public class GridService {
             final int parentRowSizeX = rowSizeXArr[y - 1];
             final int currentRowSizeX = rowSizeXArr[y];
             if (currentRowSizeX > 0) {
-                final int combinationsForThisRow = parentRowSizeX + ((parentRowSizeX > 1) ? 1 : 0);
-                maxCombinations *= Math.pow(combinationsForThisRow, currentRowSizeX);
+                int combinationsForThisRow = 1;
+                for (int i = 0; i < currentRowSizeX; i++) {
+                    combinationsForThisRow *= parentRowSizeX * parentRowSizeX;
+                }
+                maxCombinations *= combinationsForThisRow;
             }
         }
         return maxCombinations;
@@ -121,19 +119,15 @@ public class GridService {
     }
 
     /**
-     * Berechnet alle möglichen leftOffX/rightOffX Kombinationen für eine gegebene Breite der Parent-Row.
-     * Erlaubt Kombinationen, bei denen beide Eingänge auf denselben Parent zeigen (z.B. [0,0], [1,1], ...).
-     * Zusätzlich nur die Kombination [1,0] für parentRowSizeX > 1.
+     * Berechnet alle möglichen Offset-Kombinationen für zwei Eingänge (z.B. leftOffX, rightOffX) und beliebig viele Parents.
+     * Gibt alle n*n Kombinationen zurück (auch [0,1] und [1,0] etc.).
      */
     public static List<int[]> calculateOffsetCombinations(final int parentRowSizeX) {
         final List<int[]> combinations = new ArrayList<>();
-        // [i,i] Kombinationen
         for (int i = 0; i < parentRowSizeX; i++) {
-            combinations.add(new int[]{i, i});
-        }
-        // Nur [1,0] Kombination für parentRowSizeX > 1
-        if (parentRowSizeX > 1) {
-            combinations.add(new int[]{1, 0});
+            for (int j = 0; j < parentRowSizeX; j++) {
+                combinations.add(new int[]{i, j});
+            }
         }
         return combinations;
     }

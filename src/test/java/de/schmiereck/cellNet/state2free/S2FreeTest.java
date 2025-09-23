@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
+import java.util.List;
 
 public class S2FreeTest {
     @Test
@@ -12,7 +13,7 @@ public class S2FreeTest {
     }
 
     @Test
-    public void testCheckGeneratedRuleCombinationsI2O2() {
+    public void testCheckGeneratedRuleCombinationsI2O2Visible() {
         final int[] rowSizeXArr = new int[]{2, 2}; // Input-Layer und eine Regel-Zeile
 
         final int maxRuleNr = GridService.calcMaxRuleNr();
@@ -61,7 +62,7 @@ public class S2FreeTest {
         // offNr: 8
         // ...
 
-        Assertions.assertEquals(9, maxOffNr);
+        Assertions.assertEquals(16, maxOffNr);
 
         for (int offNr = 0; offNr <= maxOffNr; offNr++) {
             //System.out.printf("GridNr: %6d ", gridNr);
@@ -84,7 +85,7 @@ public class S2FreeTest {
                 }
                 case 1 -> {
                     assertEqualsCellRuleNrArr(offNr, grid, 0, new int[][] { { 0, 1 }, { 0, 1 } });
-                    assertEqualsCellRuleNrArr(offNr, grid, 1, new int[][] { { 1, 1 }, { 0, 0 } });
+                    assertEqualsCellRuleNrArr(offNr, grid, 1, new int[][] { { 0, 1 }, { 0, 0 } });
                     assertEqualsCellRuleNrArr(offNr, grid, 2, new int[][] { { 0, 0 }, { 0, 0 } });
                 }
                 case 2 -> {
@@ -94,38 +95,73 @@ public class S2FreeTest {
                 }
                 case 3 -> {
                     assertEqualsCellRuleNrArr(offNr, grid, 0, new int[][] { { 0, 1 }, { 0, 1 } });
-                    assertEqualsCellRuleNrArr(offNr, grid, 1, new int[][] { { 0, 0 }, { 1, 1 } });
+                    assertEqualsCellRuleNrArr(offNr, grid, 1, new int[][] { { 1, 1 }, { 0, 0 } });
                     assertEqualsCellRuleNrArr(offNr, grid, 2, new int[][] { { 0, 0 }, { 0, 0 } });
                 }
                 case 4 -> {
                     assertEqualsCellRuleNrArr(offNr, grid, 0, new int[][] { { 0, 1 }, { 0, 1 } });
-                    assertEqualsCellRuleNrArr(offNr, grid, 1, new int[][] { { 1, 1 }, { 1, 1 } });
+                    assertEqualsCellRuleNrArr(offNr, grid, 1, new int[][] { { 0, 0 }, { 0, 1 } });
                     assertEqualsCellRuleNrArr(offNr, grid, 2, new int[][] { { 0, 0 }, { 0, 0 } });
                 }
                 case 5 -> {
                     assertEqualsCellRuleNrArr(offNr, grid, 0, new int[][] { { 0, 1 }, { 0, 1 } });
-                    assertEqualsCellRuleNrArr(offNr, grid, 1, new int[][] { { 1, 0 }, { 1, 1 } });
+                    assertEqualsCellRuleNrArr(offNr, grid, 1, new int[][] { { 0, 1 }, { 0, 1 } });
                     assertEqualsCellRuleNrArr(offNr, grid, 2, new int[][] { { 0, 0 }, { 0, 0 } });
                 }
                 case 6 -> {
                     assertEqualsCellRuleNrArr(offNr, grid, 0, new int[][] { { 0, 1 }, { 0, 1 } });
-                    assertEqualsCellRuleNrArr(offNr, grid, 1, new int[][] { { 0, 0 }, { 1, 0 } });
+                    assertEqualsCellRuleNrArr(offNr, grid, 1, new int[][] { { 1, 0 }, { 0, 1 } });
                     assertEqualsCellRuleNrArr(offNr, grid, 2, new int[][] { { 0, 0 }, { 0, 0 } });
                 }
                 case 7 -> {
                     assertEqualsCellRuleNrArr(offNr, grid, 0, new int[][] { { 0, 1 }, { 0, 1 } });
-                    assertEqualsCellRuleNrArr(offNr, grid, 1, new int[][] { { 1, 1 }, { 1, 0 } });
+                    assertEqualsCellRuleNrArr(offNr, grid, 1, new int[][] { { 1, 1 }, { 0, 1 } });
                     assertEqualsCellRuleNrArr(offNr, grid, 2, new int[][] { { 0, 0 }, { 0, 0 } });
                 }
                 case 8 -> {
                     assertEqualsCellRuleNrArr(offNr, grid, 0, new int[][] { { 0, 1 }, { 0, 1 } });
-                    assertEqualsCellRuleNrArr(offNr, grid, 1, new int[][] { { 1, 0 }, { 1, 0 } });
+                    assertEqualsCellRuleNrArr(offNr, grid, 1, new int[][] { { 0, 0 }, { 1, 0 } });
                     assertEqualsCellRuleNrArr(offNr, grid, 2, new int[][] { { 0, 0 }, { 0, 0 } });
                 }
                 case 9 -> {
                     assertEqualsCellRuleNrArr(offNr, grid, 0, new int[][] { { 0, 1 }, { 0, 1 } });
+                    assertEqualsCellRuleNrArr(offNr, grid, 1, new int[][] { { 0, 1 }, { 1, 0 } });
+                    assertEqualsCellRuleNrArr(offNr, grid, 2, new int[][] { { 0, 0 }, { 0, 0 } });
+                }
+                case 10 -> {
+                    assertEqualsCellRuleNrArr(offNr, grid, 0, new int[][] { { 0, 1 }, { 0, 1 } });
+                    assertEqualsCellRuleNrArr(offNr, grid, 1, new int[][] { { 1, 0 }, { 1, 0 } });
+                    assertEqualsCellRuleNrArr(offNr, grid, 2, new int[][] { { 0, 0 }, { 0, 0 } });
+                }
+                case 11 -> {
+                    assertEqualsCellRuleNrArr(offNr, grid, 0, new int[][] { { 0, 1 }, { 0, 1 } });
+                    assertEqualsCellRuleNrArr(offNr, grid, 1, new int[][] { { 1, 1 }, { 1, 0 } });
+                    assertEqualsCellRuleNrArr(offNr, grid, 2, new int[][] { { 0, 0 }, { 0, 0 } });
+                }
+                case 12 -> {
+                    assertEqualsCellRuleNrArr(offNr, grid, 0, new int[][] { { 0, 1 }, { 0, 1 } });
+                    assertEqualsCellRuleNrArr(offNr, grid, 1, new int[][] { { 0, 0 }, { 1, 1 } });
+                    assertEqualsCellRuleNrArr(offNr, grid, 2, new int[][] { { 0, 0 }, { 0, 0 } });
+                }
+                case 13 -> {
+                    assertEqualsCellRuleNrArr(offNr, grid, 0, new int[][] { { 0, 1 }, { 0, 1 } });
+                    assertEqualsCellRuleNrArr(offNr, grid, 1, new int[][] { { 0, 1 }, { 1, 1 } });
+                    assertEqualsCellRuleNrArr(offNr, grid, 2, new int[][] { { 0, 0 }, { 0, 0 } });
+                }
+                case 14 -> {
+                    assertEqualsCellRuleNrArr(offNr, grid, 0, new int[][] { { 0, 1 }, { 0, 1 } });
+                    assertEqualsCellRuleNrArr(offNr, grid, 1, new int[][] { { 1, 0 }, { 1, 1 } });
+                    assertEqualsCellRuleNrArr(offNr, grid, 2, new int[][] { { 0, 0 }, { 0, 0 } });
+                }
+                case 15 -> {
+                    assertEqualsCellRuleNrArr(offNr, grid, 0, new int[][] { { 0, 1 }, { 0, 1 } });
+                    assertEqualsCellRuleNrArr(offNr, grid, 1, new int[][] { { 1, 1 }, { 1, 1 } });
+                    assertEqualsCellRuleNrArr(offNr, grid, 2, new int[][] { { 0, 0 }, { 0, 0 } });
+                }
+                case 16 -> {
+                    assertEqualsCellRuleNrArr(offNr, grid, 0, new int[][] { { 0, 1 }, { 0, 1 } });
                     assertEqualsCellRuleNrArr(offNr, grid, 1, new int[][] { { 0, 0 }, { 0, 0 } });
-                    assertEqualsCellRuleNrArr(offNr, grid, 2, new int[][] { { 1, 1 }, { 0, 0 } });
+                    assertEqualsCellRuleNrArr(offNr, grid, 2, new int[][] { { 0, 1 }, { 0, 0 } });
                 }
             }
 
@@ -134,9 +170,49 @@ public class S2FreeTest {
     }
 
     @Test
+    public void testCheckGeneratedRuleCombinationsI2O2() {
+        final int[] rowSizeXArr = new int[]{2, 2}; // Input-Layer und eine Regel-Zeile
+        final int parentRowSizeX = rowSizeXArr[0];
+        final int childRowSizeX = rowSizeXArr[1];
+        final int combinationsPerCell = parentRowSizeX * parentRowSizeX;
+        final int maxOffNr = (int)Math.pow(combinationsPerCell, childRowSizeX);
+        Assertions.assertEquals(16, maxOffNr);
+        // Prüfe für jede OffNr, ob die Kombinationen korrekt verteilt werden
+        for (int offNr = 0; offNr < maxOffNr; offNr++) {
+            final Grid grid = GridService.createGridByRuleNrAndOffNr(rowSizeXArr, 0, offNr);
+            // Prüfe für jede Zelle der Regelzeile
+            int tmp = offNr;
+            for (int x = 0; x < childRowSizeX; x++) {
+                int idx = tmp % combinationsPerCell;
+                int[] expected = GridService.calculateOffsetCombinations(parentRowSizeX).get(idx);
+                Cell cell = grid.rowArr[1].cellArr[x];
+                Assertions.assertEquals(expected[0], cell.leftOffX, "offNr: %d, cell: %d left".formatted(offNr, x));
+                Assertions.assertEquals(expected[1], cell.rightOffX, "offNr: %d, cell: %d right".formatted(offNr, x));
+                tmp /= combinationsPerCell;
+            }
+        }
+    }
+
+    @Test
     public void testCheckGeneratedRuleCombinationsI3O3() {
         final int[] rowSizeXArr = new int[]{3, 3}; // Input-Layer und eine Regel-Zeile
-
+        final int parentRowSizeX = rowSizeXArr[0];
+        final int childRowSizeX = rowSizeXArr[1];
+        final int combinationsPerCell = parentRowSizeX * parentRowSizeX;
+        final int maxOffNr = (int)Math.pow(combinationsPerCell, childRowSizeX);
+        Assertions.assertEquals(729, maxOffNr);
+        for (int offNr = 0; offNr < maxOffNr; offNr++) {
+            final Grid grid = GridService.createGridByRuleNrAndOffNr(rowSizeXArr, 0, offNr);
+            int tmp = offNr;
+            for (int x = 0; x < childRowSizeX; x++) {
+                int idx = tmp % combinationsPerCell;
+                int[] expected = GridService.calculateOffsetCombinations(parentRowSizeX).get(idx);
+                Cell cell = grid.rowArr[1].cellArr[x];
+                Assertions.assertEquals(expected[0], cell.leftOffX, "offNr: %d, cell: %d left".formatted(offNr, x));
+                Assertions.assertEquals(expected[1], cell.rightOffX, "offNr: %d, cell: %d right".formatted(offNr, x));
+                tmp /= combinationsPerCell;
+            }
+        }
     }
 
     private static void assertEqualsCellRuleNrArr(final int offNr, final Grid grid, final int y, final int[][] cellOffArr) {
