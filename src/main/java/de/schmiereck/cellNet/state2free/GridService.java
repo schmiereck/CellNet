@@ -83,21 +83,27 @@ public class GridService {
      */
     public static int calcMaxOffsetCombinations(final int[] rowSizeXArr, final boolean noCommutative) {
         int maxCombinations = 1;
-        for (int y = 1; y < rowSizeXArr.length; y++) {
-            int parentRowSizeX = rowSizeXArr[y - 1];
-            int combinationsPerCell;
-            if (noCommutative) {
-                // Kommutative Kombinationen pro Zelle in der aktuellen Zeile nicht prüfen.
-                combinationsPerCell = (parentRowSizeX * (parentRowSizeX + 1)) / 2;
-            } else {
-                combinationsPerCell = parentRowSizeX * parentRowSizeX;
-            }
-            int currentRowSizeX = rowSizeXArr[y];
+        for (int y = 0; y < rowSizeXArr.length; y++) {
+            // Input-Layer (y=0) bekommt die Größe der ersten Regel-Zeile
+            final int parentRowSizeX = rowSizeXArr[y == 0 ? 0 : y - 1];
+            final int combinationsPerCell = calcCombinationsPerCell(parentRowSizeX, noCommutative);
+            final int currentRowSizeX = rowSizeXArr[y];
             for (int x = 0; x < currentRowSizeX; x++) {
                 maxCombinations *= combinationsPerCell;
             }
         }
-        return maxCombinations;
+        return maxCombinations - 1; // -1, da offNr bei 0 beginnt
+    }
+
+    public static int calcCombinationsPerCell(final int parentRowSizeX, final boolean noCommutative) {
+        final int combinationsPerCell;
+        if (noCommutative) {
+            // Kommutative Kombinationen pro Zelle in der aktuellen Zeile nicht prüfen.
+            combinationsPerCell = (parentRowSizeX * (parentRowSizeX + 1)) / 2;
+        } else {
+            combinationsPerCell = parentRowSizeX * parentRowSizeX;
+        }
+        return combinationsPerCell;
     }
 
     public static int calcOffsetsForOffNr(final Cell cell,

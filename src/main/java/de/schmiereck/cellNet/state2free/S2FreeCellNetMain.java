@@ -25,7 +25,7 @@ public class S2FreeCellNetMain {
         //findBooleanXorRuleNumbersI2O1();      // XOR:     size: 3, 4+1 [6]
         //findBooleanXnorRuleNumbersI2O1();     // XNOR:    size: 3, 4+1 [9]
 
-        //findBooleanAndRuleNumbersI2O1Deep();  // AND:     size: [2], 1+1 GridNr:  8, size: [2, 2], 2+1 GridNr: 263
+        findBooleanAndRuleNumbersI2O1Deep();  // AND:     size: [2], 1+1 GridNr:  8, size: [2, 2], 2+1 GridNr: 263
         //findBooleanOrRuleNumbersI2O1Deep();   // OR:      size: [2], 1+1 GridNr: 14 , size: [2, 2], 2+1 GridNr: 257
         //findBooleanNandRuleNumbersI2O1Deep(); // NAND:    size: [2], 1+1 GridNr:  7, size: [2, 2], 2+1 GridNr: 264
         //findBooleanNorRuleNumbersI2O1Deep();  // NOR:     size: [2], 1+1 GridNr:  1, size: [2, 2], 2+1 GridNr: 270
