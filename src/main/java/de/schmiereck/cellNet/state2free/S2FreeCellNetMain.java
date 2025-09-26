@@ -39,6 +39,7 @@ public class S2FreeCellNetMain {
         //findBooleanXnorGridOffNumbersI2O1Deep(); // XNOR:   size: [2, 1], 2+1 GridOffNr: 67627
         //findSimpleBooleanRuleNumbersI2O1(); // No universal Solution.
         //findSimpleBooleanRuleNumbersI2O1Deep(); // Runs years...
+        findSimpleBooleanRuleNumbersI2O1Genetic(1); //
         //findSimpleBooleanGridOffNumbersI2O1Deep(); // Runs years...
         //findBooleanRuleNumbersI2O1(); // Works. No universal Solution.
         //findBooleanRuleNumbersI2O1xxxDeep(); // Runs years...
@@ -53,8 +54,8 @@ public class S2FreeCellNetMain {
         //findCountGridOffNumbersI2O2Genetic(1); // size: [2], 1+1 GridOffNr: random 945 177 433 ...
         //findCountGridOffNumbersI2O2Genetic(2); // size: [2, 2], 2+1 GridOffNr: random 4781929 4773929 4835050 ...
         //findCountRuleNumbersI3O3Deep(); // Runs years...
-        findCountRuleNumbersI3O3Genetic(1); // size: [3], 1+1
-        findCountRuleNumbersI3O3Genetic(2); //
+        //findCountRuleNumbersI3O3Genetic(1); // size: [3], 1+1
+        //findCountRuleNumbersI3O3Genetic(2); //
         //findCountGridOffNumbersI3O3Deep(1); // size: [3], 1+1 No universal Solution
         //findCountGridOffNumbersI3O3Deep(2); // size: [3, 3], 2+1 Runs years...
     }
@@ -184,10 +185,6 @@ public class S2FreeCellNetMain {
     }
 
     private static void findCountRuleNumbersI3O3Genetic(final int sizeY) {
-        //final int maxSearchSize = 256;
-        //final int maxSearchSize = 64;
-        final int maxSearchSize = 4;
-
         final List<OpOutput> opOutputArr = new ArrayList<>();
 
         opOutputArr.add(new OpOutput("COUNT-NEXT",
@@ -636,6 +633,41 @@ public class S2FreeCellNetMain {
         findUniversalRuleNrDeep(maxSearchSize, opOutputArr, 2 + 2, 1);
     }
 
+    private static void findSimpleBooleanRuleNumbersI2O1Genetic(final int sizeY) {
+        final int maxSearchSize = 8;
+
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("00-AND",
+                new int[][] { { 0, 0,   0, 0 }, { 0, 0,   0, 1 }, { 0, 0,   1, 0 }, { 0, 0,   1, 1 } },
+                new int[][] { { 0 }, { 0 }, { 0 }, { 1 } }));
+        opOutputArr.add(new OpOutput("01-OR",
+                new int[][] { { 0, 1,   0, 0 }, { 0, 1,   0, 1 }, { 0, 1,   1, 0 }, { 0, 1,   1, 1 } },
+                new int[][] { { 0 }, { 1 }, { 1 }, { 1 } }));
+        opOutputArr.add(new OpOutput("10-NAND",
+                new int[][] { { 1, 0,   0, 0 }, { 1, 0,   0, 1 }, { 1, 0,   1, 0 }, { 1, 0,   1, 1 } },
+                new int[][] { { 1 }, { 1 }, { 1 }, { 0 } }));
+        opOutputArr.add(new OpOutput("11-NOR",
+                new int[][] { { 1, 1,   0, 0 }, { 1, 1,   0, 1 }, { 1, 1,   1, 0 }, { 1, 1,   1, 1 } },
+                new int[][] { { 1 }, { 0 }, { 0 }, { 0 } }));
+
+
+        // Input-Layer und eine Regel-Zeile
+        final int[] rowSizeXArr =
+                switch (sizeY) {
+                    case 1 -> new int[] { 4, 1 };
+                    case 2 -> new int[] { 4, 3, 1 };
+                    default -> throw new IllegalStateException("Unexpected sizeY value: " + sizeY);
+                };
+        final boolean noCommutative = true;
+        final int geneticRunCount = 10_000_000;
+        final int populationSize = 500;
+
+        findUniversalGridOffNrGenetic(opOutputArr, rowSizeXArr, noCommutative, geneticRunCount, populationSize);
+    }
+
     private static void findSimpleBooleanGridOffNumbersI2O1Deep() {
         // Definition der booleschen Operationen und deren erwartete Outputs
         // Programmable Logic Array (PLA) https://en.wikipedia.org/wiki/Programmable_logic_array
@@ -1003,6 +1035,9 @@ public class S2FreeCellNetMain {
 
         @SuppressWarnings("unchecked")
         final List<BigInteger>[] matchingGridOffNrListArr = new List[opOutputArr.size()];
+        for (int pos = 0; pos < opOutputArr.size(); pos++) {
+            matchingGridOffNrListArr[pos] = new ArrayList<>();
+        }
 
         System.out.println("|0%----------------|25%----------------|50%----------------|75-----------------|%100%");
         System.out.print("|");
@@ -1111,7 +1146,9 @@ public class S2FreeCellNetMain {
         System.out.println();
         IntStream.range(0, opOutputArr.size()).forEach(pos -> {
             final OpOutput opOutput = opOutputArr.get(pos);
-            System.out.printf("%s: %s\n", opOutput.opName, matchingGridOffNrListArr[pos].size());
+            if (Objects.nonNull(matchingGridOffNrListArr[pos])) {
+                System.out.printf("%s: %s\n", opOutput.opName, matchingGridOffNrListArr[pos].size());
+            }
         });
 
         return matchingGridOffNrListArr;
