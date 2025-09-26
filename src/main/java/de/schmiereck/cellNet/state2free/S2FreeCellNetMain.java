@@ -742,10 +742,11 @@ public class S2FreeCellNetMain {
                     final Grid grid = GridService.createGridByRuleNr(sizeX, sizeY, ruleNr);
                     GridService.submitInput(grid, inputArr);
                     CellNetService.calcGrid(grid);
-                    final int[] outputArr = GridService.retieveOutput(grid);
+                    //final int[] outputArr = GridService.retieveOutput(grid);
+                    final Row outputRow = GridService.retieveOutputRow(grid);
                     final int[] expectedOutputArr = expectedOutputArrArr[inputArrArrPos];
                     for (int outputArrPos = 0; outputArrPos < expectedOutputArr.length; outputArrPos++) {
-                        if (outputArr[outputArrPos] != expectedOutputArr[outputArrPos]) {
+                        if (outputRow.cellArr[outputArrPos].value != expectedOutputArr[outputArrPos]) {
                             allInputsMatch = false;
                             break;
                         }
@@ -809,10 +810,11 @@ public class S2FreeCellNetMain {
                         final Grid grid = GridService.createGridByRuleNrAndOffNr(rowSizeXArr, ruleNr, offNr, noCommutative);
                         GridService.submitInput(grid, inputArr);
                         CellNetService.calcGrid(grid);
-                        final int[] outputArr = GridService.retieveOutput(grid);
+                        //final int[] outputArr = GridService.retieveOutput(grid);
+                        final Row outputRow = GridService.retieveOutputRow(grid);
                         final int[] expectedOutputArr = expectedOutputArrArr[inputArrArrPos];
                         for (int outputArrPos = 0; outputArrPos < expectedOutputArr.length; outputArrPos++) {
-                            if (outputArr[outputArrPos] != expectedOutputArr[outputArrPos]) {
+                            if (outputRow.cellArr[outputArrPos].value != expectedOutputArr[outputArrPos]) {
                                 allInputsMatch = false;
                                 break;
                             }
@@ -912,11 +914,12 @@ public class S2FreeCellNetMain {
                                     final int[] inputArr = inputArrArr[inputArrArrPos];
                                     GridService.submitInput(grid, inputArr);
                                     CellNetService.calcGrid(grid);
-                                    final int[] outputArr = GridService.retieveOutput(grid);
+                                    //final int[] outputArr = GridService.retieveOutput(grid);
+                                    final Row outputRow = GridService.retieveOutputRow(grid);
 
                                     final int[] expectedOutputArr = expectedOutputArrArr[inputArrArrPos];
                                     for (int outputArrPos = 0; outputArrPos < expectedOutputArr.length; outputArrPos++) {
-                                        if (outputArr[outputArrPos] != expectedOutputArr[outputArrPos]) {
+                                        if (outputRow.cellArr[outputArrPos].value != expectedOutputArr[outputArrPos]) {
                                             allInputsMatch = false;
                                             break inputArrArrPosLoop;
                                         }
@@ -1034,12 +1037,9 @@ public class S2FreeCellNetMain {
         }
 
         for (int geneticRunPos = 0; geneticRunPos < geneticRunCount; geneticRunPos++) {
-            gridScoreList.forEach(gridScore -> {
-                final BigInteger gridNr = gridScore.gridNr;
-                final int offNr = gridScore.offNr;
-
+            gridScoreList.stream().parallel().forEach(gridScore -> {
                 gridScore.score =
-                        checkGridOffNrOutputs(opOutputArr, rowSizeXArr, noCommutative, gridNr, maxOffsetCombinations, offNr, matchingGridOffNrListArr);
+                        checkGridOffNrOutputs(gridScore, opOutputArr, rowSizeXArr, noCommutative, maxOffsetCombinations, matchingGridOffNrListArr);
             });
 
             gridScoreList.sort((aGridScore, bGridScore) -> Integer.compare(bGridScore.score, aGridScore.score));
@@ -1141,18 +1141,21 @@ public class S2FreeCellNetMain {
         return mutatedOffNr;
     }
 
-    private static int checkGridOffNrOutputs(final List<OpOutput> opOutputArr, final int[] rowSizeXArr,
-                                             final boolean noCommutative, final BigInteger gridNr,
-                                             final int maxOffsetCombinations, final int offNr,
+    private static int checkGridOffNrOutputs(final GridScore gridScore,
+                                             final List<OpOutput> opOutputArr, final int[] rowSizeXArr,
+                                             final boolean noCommutative,
+                                             final int maxOffsetCombinations,
                                              final List<BigInteger>[] matchingGridOffNrListArr) {
+        final BigInteger gridNr = gridScore.gridNr;
+        final int offNr = gridScore.offNr;
+        final BigInteger gridOffNr = gridNr.multiply(BigInteger.valueOf(maxOffsetCombinations)).add(BigInteger.valueOf(offNr));
+
         int allInputMatchCount = 0;
         for (int pos = 0; pos < opOutputArr.size(); pos++) {
             final OpOutput opOutput = opOutputArr.get(pos);
             final int[][] expectedOutputArrArr = opOutput.expectedOutputArrArr;
             final int[][] inputArrArr = opOutput.inputArrArr;
-            final List<BigInteger> localMatcheGridOffNrList = Collections.synchronizedList(new ArrayList<>());
 
-            final BigInteger gridOffNr = gridNr.multiply(BigInteger.valueOf(maxOffsetCombinations)).add(BigInteger.valueOf(offNr));
             final Grid grid = GridService.createGridForCombination(rowSizeXArr, gridNr, offNr, noCommutative);
             boolean allOpInputsMatch = true;
             int opInputsMatchCount = 0;
@@ -1160,12 +1163,13 @@ public class S2FreeCellNetMain {
                 final int[] inputArr = inputArrArr[inputArrArrPos];
                 GridService.submitInput(grid, inputArr);
                 CellNetService.calcGrid(grid);
-                final int[] outputArr = GridService.retieveOutput(grid);
+                //final int[] outputArr = GridService.retieveOutput(grid);
+                final Row outputRow = GridService.retieveOutputRow(grid);
 
                 int outputsMatch = 0;
                 final int[] expectedOutputArr = expectedOutputArrArr[inputArrArrPos];
                 for (int outputArrPos = 0; outputArrPos < expectedOutputArr.length; outputArrPos++) {
-                    if (outputArr[outputArrPos] == expectedOutputArr[outputArrPos]) {
+                    if (outputRow.cellArr[outputArrPos].value == expectedOutputArr[outputArrPos]) {
                         opInputsMatchCount++;
                         outputsMatch++;
                     }
@@ -1176,17 +1180,21 @@ public class S2FreeCellNetMain {
             }
             allInputMatchCount += opInputsMatchCount;
             if (allOpInputsMatch) {
-                localMatcheGridOffNrList.add(gridOffNr);
+                synchronized (matchingGridOffNrListArr) {
+                    if (Objects.nonNull(matchingGridOffNrListArr[pos])) {
+                        matchingGridOffNrListArr[pos].add(gridOffNr);
+                    } else {
+                        //final List<BigInteger> localMatcheGridOffNrList = Collections.synchronizedList(new ArrayList<>());
+                        final List<BigInteger> localMatcheGridOffNrList = new ArrayList<>();
+                        localMatcheGridOffNrList.add(gridOffNr);
+                        matchingGridOffNrListArr[pos] = localMatcheGridOffNrList;
+                    }
+                }
                 if (ShowFoundNr) {
                     synchronized (System.out) {
                         System.out.println(gridOffNr); // Gefundene Regel-Kombination ausgeben
                     }
                 }
-            }
-            if (Objects.nonNull(matchingGridOffNrListArr[pos])) {
-                matchingGridOffNrListArr[pos].addAll(localMatcheGridOffNrList);
-            } else {
-                matchingGridOffNrListArr[pos] = localMatcheGridOffNrList;
             }
         }
         // Max is opOutputArr.size() * opOutput.inputArrArr.length * expectedOutputArr.length
@@ -1250,11 +1258,12 @@ public class S2FreeCellNetMain {
                                 final int[] inputArr = inputArrArr[inputArrArrPos];
                                 GridService.submitInput(grid, inputArr);
                                 CellNetService.calcGrid(grid);
-                                final int[] outputArr = GridService.retieveOutput(grid);
+                                //final int[] outputArr = GridService.retieveOutput(grid);
+                                final Row outputRow = GridService.retieveOutputRow(grid);
 
                                 final int[] expectedOutputArr = expectedOutputArrArr[inputArrArrPos];
                                 for (int outputArrPos = 0; outputArrPos < expectedOutputArr.length; outputArrPos++) {
-                                    if (outputArr[outputArrPos] != expectedOutputArr[outputArrPos]) {
+                                    if (outputRow.cellArr[outputArrPos].value != expectedOutputArr[outputArrPos]) {
                                         allInputsMatch = false;
                                         break inputArrArrPosLoop;
                                     }
@@ -1423,8 +1432,9 @@ public class S2FreeCellNetMain {
             final Grid grid = GridService.createGridByRuleNr(sizeX, sizeY, ruleNr);
             GridService.submitInput(grid, inputArr);
             CellNetService.calcGrid(grid);
-            final int[] outputArr = GridService.retieveOutput(grid);
-            System.out.printf("Eingabe: %s, Erwartete Ausgabe: %s, Tatsächliche Ausgabe: %s\n", Arrays.toString(inputArr), Arrays.toString(expectedOutputArr), Arrays.toString(outputArr));
+            final int[] outputArr = retieveOutput(grid);
+            System.out.printf("Eingabe: %s, Erwartete Ausgabe: %s, Tatsächliche Ausgabe: %s\n",
+                    Arrays.toString(inputArr), Arrays.toString(expectedOutputArr), Arrays.toString(outputArr));
             printGridValue(grid);
         }
         System.out.println();
@@ -1441,11 +1451,22 @@ public class S2FreeCellNetMain {
             final Grid grid = GridService.createGridByRuleNr(rowSizeXArr, ruleNr, noCommutative);
             GridService.submitInput(grid, inputArr);
             CellNetService.calcGrid(grid);
-            final int[] outputArr = GridService.retieveOutput(grid);
-            System.out.printf("Eingabe: %s, Erwartete Ausgabe: %s, Tatsächliche Ausgabe: %s\n", Arrays.toString(inputArr), Arrays.toString(expectedOutputArr), Arrays.toString(outputArr));
+            final int[] outputArr = retieveOutput(grid);
+            System.out.printf("Eingabe: %s, Erwartete Ausgabe: %s, Tatsächliche Ausgabe: %s\n",
+                    Arrays.toString(inputArr), Arrays.toString(expectedOutputArr), Arrays.toString(outputArr));
             printGridValue(grid);
         }
         System.out.println();
+    }
+
+    public static int[] retieveOutput(final Grid grid) {
+        final Row outoutRow = grid.rowArr[grid.sizeY - 1];
+        final int[] outputArr = new int[outoutRow.sizeX];
+        for (int x = 0; x < outoutRow.sizeX; x++) {
+            final Cell cell = outoutRow.cellArr[x];
+            outputArr[x] = cell.value;
+        }
+        return outputArr;
     }
 
     static void printGridValue(final Grid grid) {

@@ -241,14 +241,8 @@ public class GridService {
         }
     }
 
-    public static int[] retieveOutput(final Grid grid) {
-        final Row outoutRow = grid.rowArr[grid.sizeY - 1];
-        final int[] outputArr = new int[outoutRow.sizeX];
-        for (int x = 0; x < outoutRow.sizeX; x++) {
-            final Cell cell = outoutRow.cellArr[x];
-            outputArr[x] = cell.value;
-        }
-        return outputArr;
+    public static Row retieveOutputRow(final Grid grid) {
+        return grid.rowArr[grid.sizeY - 1];
     }
 
     /**
