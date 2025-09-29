@@ -11,7 +11,7 @@ public class GridService {
 
     public static Grid createGridByRuleNr(final int sizeX, final int sizeY, final int ruleNr) {
         // sizeY = Anzahl der Regel-Zeilen (ohne Input-Layer)
-        final int totalSizeY = sizeY + 1;
+        final int totalSizeY = sizeY;
         final Grid grid = new Grid(totalSizeY);
         grid.rowArr = new Row[totalSizeY];
         for (int y = 0; y < totalSizeY; y++) {
@@ -34,12 +34,20 @@ public class GridService {
         return createGridByRuleNrAndOffNr(rowSizeXArr, ruleNr, offNr, noCommutative);
     }
 
+    public record RuleOffNrPair(int ruleNr, int offNr) {
+    }
+
     public static Grid createGridByRuleOffNr(final int[] rowSizeXArr, final int ruleOffNr,
                                              final boolean noCommutative) {
+        final RuleOffNrPair ruleOffNrPair = calcRuleOffNrPair(rowSizeXArr, ruleOffNr, noCommutative);
+        return createGridByRuleNrAndOffNr(rowSizeXArr, ruleOffNrPair.ruleNr, ruleOffNrPair.offNr, noCommutative);
+    }
+
+    public static RuleOffNrPair calcRuleOffNrPair(int[] rowSizeXArr, int ruleOffNr, boolean noCommutative) {
         final int maxOffsetCombinations = GridService.calcMaxOffsetCombinations(rowSizeXArr, noCommutative);
         final int ruleNr = ruleOffNr / maxOffsetCombinations;
         final int offNr = ruleOffNr % maxOffsetCombinations;
-        return createGridByRuleNrAndOffNr(rowSizeXArr, ruleNr, offNr, noCommutative);
+        return new RuleOffNrPair(ruleNr, offNr);
     }
 
     /**
@@ -48,26 +56,35 @@ public class GridService {
     public static Grid createGridByRuleNrAndOffNr(final int[] rowSizeXArr,
                                                   final int ruleNr, final int offNr,
                                                   final boolean noCommutative) {
-        // sizeY = Anzahl der Regel-Zeilen (ohne Input-Layer)
-        final int totalSizeY = rowSizeXArr.length + 1;
+        // sizeY = Anzahl der Regel-Zeilen (erste Zeile ist der Input-Layer)
+        final int totalSizeY = rowSizeXArr.length;
         final Grid grid = new Grid(totalSizeY);
         grid.rowArr = new Row[totalSizeY];
 
         int currentOffNr = offNr;
 
+        // Input-Layer (y=0) ist die erste Zeile.
         for (int y = 0; y < totalSizeY; y++) {
-            // Input-Layer (y=0) bekommt die Größe der ersten Regel-Zeile
-            final int rowSizeX = rowSizeXArr[y == 0 ? 0 : y - 1];
+            final int rowSizeX = rowSizeXArr[y];
 
             grid.rowArr[y] = new Row(rowSizeX);
             grid.rowArr[y].cellArr = new Cell[rowSizeX];
 
             for (int x = 0; x < rowSizeX; x++) {
                 final Cell cell = new Cell();
-                cell.ruleNr = ruleNr;
-                cell.value = 0;
 
-                currentOffNr = calcOffsetsForOffNr(cell, rowSizeXArr, y, currentOffNr, noCommutative);
+                if (y > 0) {
+                    cell.ruleNr = ruleNr;
+                    // Regel-Zeilen: Offsets basierend auf offNr berechnen
+                    // Input-Layer (y=0) bekommt die Standard-Offsets
+                    currentOffNr = calcNextOffsetsForOffNr(cell, rowSizeXArr, y, currentOffNr, noCommutative);
+                } else {
+                    // Input-Layer: Standard-Offsets
+                    cell.leftOffX = 0;
+                    cell.rightOffX = 0;//Cell.RIGHT_OFF_X;
+                    cell.ruleNr = 0; // Input-Layer
+                }
+                cell.value = 0;
 
                 grid.rowArr[y].cellArr[x] = cell;
             }
@@ -82,8 +99,8 @@ public class GridService {
      */
     public static Grid createGridForCombination(final int[] rowSizeXArr, final BigInteger gridNr, final int offNr,
                                                 final boolean noCommutative) {
-        // sizeY = Anzahl der Regel-Zeilen (ohne Input-Layer)
-        final int totalSizeY = rowSizeXArr.length + 1;
+        // sizeY = Anzahl der Regel-Zeilen (mit Input-Layer)
+        final int totalSizeY = rowSizeXArr.length;
         final Grid grid = new Grid(totalSizeY);
         grid.rowArr = new Row[totalSizeY];
 
@@ -92,21 +109,23 @@ public class GridService {
 
         for (int y = 0; y < totalSizeY; y++) {
             // Input-Layer (y=0) bekommt die Größe der ersten Regel-Zeile
-            final int rowSizeX = rowSizeXArr[y == 0 ? 0 : y - 1];
+            final int rowSizeX = rowSizeXArr[y];
 
             grid.rowArr[y] = new Row(rowSizeX);
             grid.rowArr[y].cellArr = new Cell[rowSizeX];
             for (int x = 0; x < rowSizeX; x++) {
                 final Cell cell = new Cell();
-                if (y == 0) {
-                    cell.ruleNr = 0; // Input-Layer
-                } else {
+                if (y > 0) {
                     cell.ruleNr = calcRuleNrByCountNr(countNr);
                     countNr = calcNextCountNr(countNr);
+                    currentOffNr = calcNextOffsetsForOffNr(cell, rowSizeXArr, y, currentOffNr, noCommutative);
+                } else {
+                    // Input-Layer: Standard-Offsets
+                    cell.leftOffX = 0;
+                    cell.rightOffX = 0;//Cell.RIGHT_OFF_X;
+                    cell.ruleNr = 0; // Input-Layer
                 }
                 cell.value = 0;
-
-                currentOffNr = calcOffsetsForOffNr(cell, rowSizeXArr, y, currentOffNr, noCommutative);
 
                 grid.rowArr[y].cellArr[x] = cell;
             }
@@ -120,24 +139,23 @@ public class GridService {
      * Die erste Zeile (y=0) ist der Input-Layer und bekommt ruleNr=0.
      */
     public static Grid createGridForCombination(final int[] rowSizeXArr, final BigInteger gridNr) {
-        // sizeY = Anzahl der Regel-Zeilen (ohne Input-Layer)
-        final int totalSizeY = rowSizeXArr.length + 1;
+        // sizeY = Anzahl der Regel-Zeilen (mit Input-Layer)
+        final int totalSizeY = rowSizeXArr.length;
         final Grid grid = new Grid(totalSizeY);
         grid.rowArr = new Row[totalSizeY];
         BigInteger countNr = gridNr;
         for (int y = 0; y < totalSizeY; y++) {
-            // Input-Layer (y=0) bekommt die Größe der ersten Regel-Zeile
-            final int rowSizeX = rowSizeXArr[y == 0 ? 0 : y - 1];
+            final int rowSizeX = rowSizeXArr[y];
 
             grid.rowArr[y] = new Row(rowSizeX);
             grid.rowArr[y].cellArr = new Cell[rowSizeX];
             for (int x = 0; x < rowSizeX; x++) {
                 final Cell cell = new Cell();
-                if (y == 0) {
-                    cell.ruleNr = 0; // Input-Layer
-                } else {
+                if (y > 0) {
                     cell.ruleNr = calcRuleNrByCountNr(countNr);
                     countNr = calcNextCountNr(countNr);
+                } else {
+                    cell.ruleNr = 0; // Input-Layer
                 }
                 cell.value = 0;
                 grid.rowArr[y].cellArr[x] = cell;
@@ -154,9 +172,9 @@ public class GridService {
      */
     public static int calcMaxOffsetCombinations(final int[] rowSizeXArr, final boolean noCommutative) {
         int maxCombinations = 1;
-        for (int y = 0; y < rowSizeXArr.length; y++) {
-            // Input-Layer (y=0) bekommt die Größe der ersten Regel-Zeile
-            final int parentRowSizeX = rowSizeXArr[y == 0 ? 0 : y - 1];
+        // Input-Layer ist die erste Regel-Zeile.
+        for (int y = 1; y < rowSizeXArr.length; y++) {
+            final int parentRowSizeX = rowSizeXArr[y - 1];
             final int combinationsPerCell = calcCombinationsPerCell(parentRowSizeX, noCommutative);
             final int currentRowSizeX = rowSizeXArr[y];
             for (int x = 0; x < currentRowSizeX; x++) {
@@ -177,14 +195,14 @@ public class GridService {
         return combinationsPerCell;
     }
 
-    public static int calcOffsetsForOffNr(final Cell cell,
-                                          final int[] rowSizeXArr, final int y, final int currentOffNr,
-                                          final boolean noCommutative) {
+    public static int calcNextOffsetsForOffNr(final Cell cell,
+                                              final int[] rowSizeXArr, final int y, final int currentOffNr,
+                                              final boolean noCommutative) {
         final int retOffNr;
         if (y == 0) {
             // Input-Layer: Standard-Offsets
             cell.leftOffX = 0;
-            cell.rightOffX = Cell.RIGHT_OFF_X;
+            cell.rightOffX = 0;//Cell.RIGHT_OFF_X;
             retOffNr = currentOffNr;
         } else {
             // Regel-Zeilen: Offsets basierend auf offNr berechnen

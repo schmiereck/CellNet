@@ -14,7 +14,7 @@ public class S2FreeTest {
 
     @Test
     public void testCheckGeneratedRuleCombinationsI2O2Visible() {
-        final int[] rowSizeXArr = new int[]{2, 2}; // Input-Layer und eine Regel-Zeile
+        final int[] rowSizeXArr = new int[]{ 2, 2, 2 }; // Input-Layer und eine Regel-Zeile
         final boolean noCommutative = false;
 
         final int maxRuleNr = GridService.calcMaxRuleNr();
@@ -219,7 +219,7 @@ public class S2FreeTest {
 
     @Test
     public void testCheckGeneratedRuleCombinationsI2O2() {
-        final int[] rowSizeXArr = new int[]{2, 2}; // Input-Layer und eine Regel-Zeile
+        final int[] rowSizeXArr = new int[]{ 2, 2, 2 }; // Input-Layer und eine Regel-Zeile
         final boolean noCommutative = false;
 
         final int parentRowSizeX = rowSizeXArr[0];
@@ -245,7 +245,7 @@ public class S2FreeTest {
 
     @Test
     public void testCheckGeneratedRuleCombinationsI2O2NoCommutative() {
-        final int[] rowSizeXArr = new int[]{2, 2}; // Input-Layer und eine Regel-Zeile
+        final int[] rowSizeXArr = new int[]{ 2, 2, 2 }; // Input-Layer und eine Regel-Zeile
         final boolean noCommutative = true;
 
         final int parentRowSizeX = rowSizeXArr[0];
@@ -271,7 +271,7 @@ public class S2FreeTest {
 
     @Test
     public void testCheckGeneratedRuleCombinationsI3O3() {
-        final int[] rowSizeXArr = new int[]{3, 3}; // Input-Layer und eine Regel-Zeile
+        final int[] rowSizeXArr = new int[]{ 3, 3, 3 }; // Input-Layer und eine Regel-Zeile
         final boolean noCommutative = false;
 
         final int parentRowSizeX = rowSizeXArr[0];
@@ -296,7 +296,7 @@ public class S2FreeTest {
 
     @Test
     public void testCheckGeneratedRuleCombinationsI3O1() {
-        final int[] rowSizeXArr = new int[]{3, 1}; // Input-Layer und eine Regel-Zeile
+        final int[] rowSizeXArr = new int[]{ 3, 3, 1 }; // Input-Layer und eine Regel-Zeile
         final boolean noCommutative = false;
 
         final int parentRowSizeX = rowSizeXArr[0];
