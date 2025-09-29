@@ -14,7 +14,7 @@ public class S2FreeCellNetMain {
     public static void main(String[] args) {
         System.out.printf("CellNet V1.0.0%n");
 
-        findTestRuleNumbersI2O1(1); // Works. size: [2, 1], 2 RuleOffNr: 43
+        //findTestRuleNumbersI2O1(1); // Works. size: [2, 1], 2 RuleOffNr: 43
         //findTestRuleNumbersI2O1(2); // Works. size: size: [2, 2, 1], 3 RuleOffNr: 896
         //findTestRuleNumbersI2O2(); // No universal Solution.
         //findTestRuleNumbersI2O2Deep(); // Works. size: [2, 2], 2+1 GridNr: 40160
@@ -66,6 +66,10 @@ public class S2FreeCellNetMain {
         //findCountRuleNumbersI3O3Genetic(2); // size: [3, 3, 3], 3 GridNr: No universal Solution
         //findCountGridOffNumbersI3O3Deep(1); // size: [3], 1+1 No universal Solution
         //findCountGridOffNumbersI3O3Deep(2); // size: [3, 3], 2+1 Runs years...
+
+        //findAddRuleOffNumbersI4O2Genetic(1); // size: [3, 3], 2 No universal Solution
+        //findAddRuleOffNumbersI4O2Genetic(2); // size: [4, 3, 3], 3 No universal Solution
+        findAddRuleOffNumbersI4O2Genetic(3); // size: [4, 4, 3], 3 No universal Solution
     }
 
     private static void findTestRuleNumbersI2O2Deep() {
@@ -215,6 +219,38 @@ public class S2FreeCellNetMain {
         final boolean noCommutative = true;
         final int geneticRunCount = 1_000_000;
         final int populationSize = 1000;
+
+        findUniversalGridOffNrGenetic(opOutputArr, rowSizeXArr, noCommutative, geneticRunCount, populationSize);
+    }
+
+    private static void findAddRuleOffNumbersI4O2Genetic(final int sizeY) {
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("ADD",
+                new int[][] {
+                        { 0, 0,  0, 0 }, { 0, 0,  0, 1 }, { 0, 0,  1, 0 }, { 0, 0,  1, 1 }, // 0 + x
+                        { 0, 1,  0, 0 }, { 0, 1,  0, 1 }, { 0, 1,  1, 0 }, { 0, 1,  1, 1 }, // 1 + x
+                        { 1, 0,  0, 0 }, { 1, 0,  0, 1 }, { 1, 0,  1, 0 }, { 1, 0,  1, 1 }, // 2 + x
+                        { 1, 1,  0, 0 }, { 1, 1,  0, 1 }, { 1, 1,  1, 0 }, { 1, 1,  1, 1 }, // 3 + x
+                },
+                new int[][] {
+                        { 0, 0, 0 }, { 0, 0, 1 }, { 0, 1, 0 }, { 0, 1, 1 }, // 0 + x
+                        { 0, 0, 1 }, { 0, 1, 0 }, { 0, 1, 1 }, { 1, 0, 0 }, // 1 + x
+                        { 0, 1, 0 }, { 0, 1, 1 }, { 1, 0, 0 }, { 1, 0, 1 }, // 2 + x
+                        { 0, 1, 1 }, { 1, 0, 0 }, { 1, 0, 1 }, { 1, 1, 0 }  // 3 + x
+        }));
+
+        // Input-Layer und eine Regel-Zeile
+        final int[] rowSizeXArr =
+                switch (sizeY) {
+                    case 1 -> new int[] { 4, 3 };
+                    case 2 -> new int[] { 4, 3, 3 };
+                    case 3 -> new int[] { 4, 4, 3 };
+                    default -> throw new IllegalStateException("Unexpected sizeY value: " + sizeY);
+                };
+        final boolean noCommutative = true;
+        final int geneticRunCount = 500_000;
+        final int populationSize = 1_000;
 
         findUniversalGridOffNrGenetic(opOutputArr, rowSizeXArr, noCommutative, geneticRunCount, populationSize);
     }
