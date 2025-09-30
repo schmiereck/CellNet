@@ -225,20 +225,20 @@ public class S2FreeTest {
         final int parentRowSizeX = rowSizeXArr[0];
         final int childRowSizeX = rowSizeXArr[1];
         final int combinationsPerCell = parentRowSizeX * parentRowSizeX;
-        final int maxOffNr = GridService.calcMaxOffsetCombinations(rowSizeXArr, noCommutative);
+        final long maxOffNr = GridService.calcMaxOffsetCombinations(rowSizeXArr, noCommutative);
         Assertions.assertEquals(255, maxOffNr);
         // Prüfe für jede OffNr, ob die Kombinationen korrekt verteilt werden
-        for (int offNr = 0; offNr <= maxOffNr; offNr++) {
+        for (long offNr = 0; offNr <= maxOffNr; offNr++) {
             final Grid grid = GridService.createGridByRuleNrAndOffNr(rowSizeXArr, 0, offNr, noCommutative);
             // Prüfe für jede Zelle der Regelzeile
-            int tmp = offNr;
+            long tmpOffNr = offNr;
             for (int x = 0; x < childRowSizeX; x++) {
-                int idx = tmp % combinationsPerCell;
+                int idx = ((int) (tmpOffNr % combinationsPerCell));
                 int[] expected = GridService.calculateOffsetCombinations(parentRowSizeX, noCommutative).get(idx);
                 Cell cell = grid.rowArr[1].cellArr[x];
                 Assertions.assertEquals(expected[0], cell.leftOffX, "offNr: %d, cell: %d left".formatted(offNr, x));
                 Assertions.assertEquals(expected[1], cell.rightOffX, "offNr: %d, cell: %d right".formatted(offNr, x));
-                tmp /= combinationsPerCell;
+                tmpOffNr /= combinationsPerCell;
             }
         }
     }
@@ -250,21 +250,21 @@ public class S2FreeTest {
 
         final int parentRowSizeX = rowSizeXArr[0];
         final int childRowSizeX = rowSizeXArr[1];
-        final int combinationsPerCell = GridService.calcCombinationsPerCell(parentRowSizeX, noCommutative);
-        final int maxOffNr = GridService.calcMaxOffsetCombinations(rowSizeXArr, noCommutative);
+        final long combinationsPerCell = GridService.calcCombinationsPerCell(parentRowSizeX, noCommutative);
+        final long maxOffNr = GridService.calcMaxOffsetCombinations(rowSizeXArr, noCommutative);
         Assertions.assertEquals(80, maxOffNr);
         // Prüfe für jede OffNr, ob die Kombinationen korrekt verteilt werden
         for (int offNr = 0; offNr <= maxOffNr; offNr++) {
             final Grid grid = GridService.createGridByRuleNrAndOffNr(rowSizeXArr, 0, offNr, noCommutative);
             // Prüfe für jede Zelle der Regelzeile
-            int tmp = offNr;
+            long tmpOffNr = offNr;
             for (int x = 0; x < childRowSizeX; x++) {
-                int idx = tmp % combinationsPerCell;
+                int idx = ((int) (tmpOffNr % combinationsPerCell));
                 int[] expected = GridService.calculateOffsetCombinations(parentRowSizeX, noCommutative).get(idx);
                 Cell cell = grid.rowArr[1].cellArr[x];
                 Assertions.assertEquals(expected[0], cell.leftOffX, "offNr: %d, cell: %d left".formatted(offNr, x));
                 Assertions.assertEquals(expected[1], cell.rightOffX, "offNr: %d, cell: %d right".formatted(offNr, x));
-                tmp /= combinationsPerCell;
+                tmpOffNr /= combinationsPerCell;
             }
         }
     }
@@ -276,20 +276,20 @@ public class S2FreeTest {
 
         final int parentRowSizeX = rowSizeXArr[0];
         final int childRowSizeX = rowSizeXArr[1];
-        final int combinationsPerCell = GridService.calcCombinationsPerCell(parentRowSizeX, noCommutative);
+        final long combinationsPerCell = GridService.calcCombinationsPerCell(parentRowSizeX, noCommutative);
         //final int maxOffNr = (int)Math.pow(combinationsPerCell, childRowSizeX);
-        final int maxOffNr = GridService.calcMaxOffsetCombinations(rowSizeXArr, noCommutative);
+        final long maxOffNr = GridService.calcMaxOffsetCombinations(rowSizeXArr, noCommutative);
         Assertions.assertEquals(531_440, maxOffNr);
         for (int offNr = 0; offNr <= maxOffNr; offNr++) {
             final Grid grid = GridService.createGridByRuleNrAndOffNr(rowSizeXArr, 0, offNr, noCommutative);
-            int tmp = offNr;
+            long tmpOffNr = offNr;
             for (int x = 0; x < childRowSizeX; x++) {
-                int idx = tmp % combinationsPerCell;
+                int idx = ((int)(tmpOffNr % combinationsPerCell));
                 int[] expected = GridService.calculateOffsetCombinations(parentRowSizeX, noCommutative).get(idx);
                 Cell cell = grid.rowArr[1].cellArr[x];
                 Assertions.assertEquals(expected[0], cell.leftOffX, "offNr: %d, cell: %d left".formatted(offNr, x));
                 Assertions.assertEquals(expected[1], cell.rightOffX, "offNr: %d, cell: %d right".formatted(offNr, x));
-                tmp /= combinationsPerCell;
+                tmpOffNr /= combinationsPerCell;
             }
         }
     }
@@ -301,20 +301,20 @@ public class S2FreeTest {
 
         final int parentRowSizeX = rowSizeXArr[0];
         final int childRowSizeX = rowSizeXArr[1];
-        final int combinationsPerCell = GridService.calcCombinationsPerCell(parentRowSizeX, noCommutative);
+        final long combinationsPerCell = GridService.calcCombinationsPerCell(parentRowSizeX, noCommutative);
         //final int maxOffNr = (int)Math.pow(combinationsPerCell, childRowSizeX);
-        final int maxOffNr = GridService.calcMaxOffsetCombinations(rowSizeXArr, noCommutative);
+        final long maxOffNr = GridService.calcMaxOffsetCombinations(rowSizeXArr, noCommutative);
         Assertions.assertEquals(6_560, maxOffNr);
         for (int offNr = 0; offNr <= maxOffNr; offNr++) {
             final Grid grid = GridService.createGridByRuleNrAndOffNr(rowSizeXArr, 0, offNr, noCommutative);
-            int tmp = offNr;
+            long tmpOffNr = offNr;
             for (int x = 0; x < childRowSizeX; x++) {
-                int idx = tmp % combinationsPerCell;
+                int idx = ((int) (tmpOffNr % combinationsPerCell));
                 int[] expected = GridService.calculateOffsetCombinations(parentRowSizeX, noCommutative).get(idx);
                 Cell cell = grid.rowArr[1].cellArr[x];
                 Assertions.assertEquals(expected[0], cell.leftOffX, "offNr: %d, cell: %d left".formatted(offNr, x));
                 Assertions.assertEquals(expected[1], cell.rightOffX, "offNr: %d, cell: %d right".formatted(offNr, x));
-                tmp /= combinationsPerCell;
+                tmpOffNr /= combinationsPerCell;
             }
         }
     }
