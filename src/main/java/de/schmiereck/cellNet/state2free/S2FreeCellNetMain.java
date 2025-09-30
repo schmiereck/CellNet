@@ -69,9 +69,9 @@ public class S2FreeCellNetMain {
 
         final int geneticRunCount = 200_000;
         final int populationSize = 1_000;
-        //findAddRuleOffNumbersI4O2Genetic(1, geneticRunCount, populationSize); // size: [3, 3], 2 No universal Solution
-        findAddRuleOffNumbersI4O2Genetic(2, geneticRunCount, populationSize); // size: [4, 3, 3], 3 No universal Solution
-        //findAddRuleOffNumbersI4O2Genetic(3); // size: [4, 4, 3], 3 No universal Solution
+        findAddRuleOffNumbersI4O2Genetic(1, geneticRunCount, populationSize); // size: [3, 3], 2 No universal Solution
+        //findAddRuleOffNumbersI4O2Genetic(2, geneticRunCount, populationSize); // size: [4, 3, 3], 3 No universal Solution
+        //findAddRuleOffNumbersI4O2Genetic(3, geneticRunCount, populationSize); // size: [4, 4, 3], 3 No universal Solution
         //findAddRuleOffNumbersI4O2Genetic(4, 500_000, 2_00); // size: [4, 5, 5, 3], 4
     }
 
@@ -1219,6 +1219,7 @@ public class S2FreeCellNetMain {
             gridScoreList.sort((aGridScore, bGridScore) -> Integer.compare(bGridScore.score, aGridScore.score));
 
             final int bestScore = gridScoreList.get(0).score;
+            final int midScore = gridScoreList.get(gridScoreList.size() / 2).score;
             final int worstScore = gridScoreList.get(gridScoreList.size() - 1).score;
 
             if (bestScore >= foundAllScore) {
@@ -1234,9 +1235,18 @@ public class S2FreeCellNetMain {
             final int winnerTopCount = populationSize / 4;
             for (int winnerTopPos = 0; winnerTopPos < winnerTopCount; winnerTopPos++) {
                 final GridScore winnerGridScore =
-                        gridScoreList.get(winnerTopCount + rnd.nextInt(populationSize - winnerTopCount));
-                final BigInteger mutatedGridNr = mutateGridNr(winnerGridScore.gridNr, mutatedGridNrRange, gridNrCount);
-                final long mutatedOffNr = mutateOffNr(winnerGridScore.offNr, mutatedOffdNrRange, maxOffsetCombinations);
+                        //gridScoreList.get(rnd.nextInt(winnerTopCount));
+                        gridScoreList.get(winnerTopPos);
+                final BigInteger mutatedGridNr;
+                final long mutatedOffNr;
+                if (winnerTopPos > winnerTopCount / 6) {
+                    mutatedGridNr = mutateGridNr(winnerGridScore.gridNr, mutatedGridNrRange, gridNrCount);
+                    mutatedOffNr = mutateOffNr(winnerGridScore.offNr, mutatedOffdNrRange, maxOffsetCombinations);
+                } else {
+                    // Keep some winners without mutation
+                    mutatedGridNr = winnerGridScore.gridNr;
+                    mutatedOffNr = winnerGridScore.offNr;
+                }
                 winnerGridScore.gridNr = mutatedGridNr;
                 winnerGridScore.offNr = mutatedOffNr;
                 winnerGridScoreList.add(winnerGridScore);
@@ -1279,7 +1289,8 @@ public class S2FreeCellNetMain {
                 synchronized (System.out) {
                     //System.out.print("*");
                     //System.out.print(bestScore + "|");
-                    System.out.print(bestScore + "," + worstScore + "|");
+                    //System.out.print(bestScore + "," + worstScore + "|");
+                    System.out.print(bestScore + "," + midScore + "," + worstScore + "|");
                 }
             }
         }
@@ -1297,20 +1308,28 @@ public class S2FreeCellNetMain {
 
     private static BigInteger mutateGridNr(BigInteger gridNr, long mutatedGridNrRange, BigInteger gridNrCount) {
         final BigInteger mutatedGridNr;
-        if (rnd.nextInt(5) == 0) {
-            mutatedGridNr = gridNr.add(BigInteger.valueOf(((rnd.nextLong() % mutatedGridNrRange) - (mutatedGridNrRange / 2L)))).mod(gridNrCount);
+        if (rnd.nextInt(15) == 0) {
+            mutatedGridNr = gridNr.add(BigInteger.valueOf(rnd.nextLong())).mod(gridNrCount);
         } else {
-            mutatedGridNr = gridNr;
+            if (rnd.nextInt(5) == 0) {
+                mutatedGridNr = gridNr.add(BigInteger.valueOf(((rnd.nextLong() % mutatedGridNrRange) - (mutatedGridNrRange / 2L)))).mod(gridNrCount);
+            } else {
+                mutatedGridNr = gridNr;
+            }
         }
         return mutatedGridNr;
     }
 
     private static long mutateOffNr(long offNr, long mutatedOffdNrRange, long maxOffsetCombinations) {
         final long mutatedOffNr;
-        if (rnd.nextInt(5) == 0) {
-            mutatedOffNr = ((offNr + rnd.nextLong(mutatedOffdNrRange) - (mutatedOffdNrRange / 2)) + maxOffsetCombinations) % maxOffsetCombinations;
+        if (rnd.nextInt(15) == 0) {
+            mutatedOffNr = rnd.nextLong(maxOffsetCombinations);
         } else {
-            mutatedOffNr = offNr;
+            if (rnd.nextInt(5) == 0) {
+                mutatedOffNr = ((offNr + rnd.nextLong(mutatedOffdNrRange) - (mutatedOffdNrRange / 2)) + maxOffsetCombinations) % maxOffsetCombinations;
+            } else {
+                mutatedOffNr = offNr;
+            }
         }
         if (mutatedOffNr < 0) {
             throw new RuntimeException("mutatedOffNr < 0");
