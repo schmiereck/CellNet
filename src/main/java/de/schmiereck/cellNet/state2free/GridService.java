@@ -45,8 +45,15 @@ public class GridService {
 
     public static RuleOffNrPair calcRuleOffNrPair(int[] rowSizeXArr, long ruleOffNr, boolean noCommutative) {
         final long maxOffsetCombinations = GridService.calcMaxOffsetCombinations(rowSizeXArr, noCommutative);
-        final int ruleNr = ((int) (ruleOffNr / maxOffsetCombinations));
-        final long offNr = (ruleOffNr % maxOffsetCombinations);
+        final int ruleNr;
+        final long offNr;
+        if (maxOffsetCombinations == 0) {
+            ruleNr = ((int) (ruleOffNr));
+            offNr = (ruleOffNr);
+        } else {
+            ruleNr = ((int) (ruleOffNr / maxOffsetCombinations));
+            offNr = (ruleOffNr % maxOffsetCombinations);
+        }
         return new RuleOffNrPair(ruleNr, offNr);
     }
 

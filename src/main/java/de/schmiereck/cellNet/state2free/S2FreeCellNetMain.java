@@ -19,6 +19,15 @@ public class S2FreeCellNetMain {
         //findTestRuleNumbersI2O2(); // No universal Solution.
         //findTestRuleNumbersI2O2Deep(); // Works. size: [2, 2], 2+1 GridNr: 40160
 
+        findBooleanZeroRuleOffNumbersI2O1();      // ZERO:    size: [2, 1], 2      RuleOffNr: 0, 1, 2, 4, 6, 8, 10, 12, 14
+        findBooleanZeroRuleOffNumbersI1O1();      // ZERO:    size: [1, 1], 2      RuleOffNr: 0
+        //findBooleanOneRuleOffNumbersI2O1();      // ONE:    size: [2, 1], 2      RuleOffNr: 32
+        //findBooleanOneRuleOffNumbersI1O1();      // ONE:    size: [1, 1], 2      RuleOffNr: 0
+        //findBooleanIsRuleOffNumbersI2O1();      // IS:    size: [2, 1], 2      RuleOffNr: 16, 17, 18, 20, 21, 22, 24, 25, 26, 28, 29, 30
+        //findBooleanIsRuleOffNumbersI1O1();      // IS:    size: [1, 1], 2      RuleOffNr: 0
+        //findBooleanNotRuleOffNumbersI2O1();      // NOT:    size: [2, 1], 2      RuleOffNr: 2, 3, 4, 6, 7, 8, 10, 11, 12, 14, 15, 16
+        //findBooleanNotRuleOffNumbersI1O1();      // NOT:    size: [1, 1], 2      RuleOffNr: 0
+
         //findBooleanAndRuleNumbersI2O1();      // AND:     size: 2, 2      RuleOffNr:  8
         //findBooleanAndRuleOffNumbersI2O1();   // AND:     size: [2, 1], 2 RuleOffNr: 17
         //findBooleanOrRuleNumbersI2O1();       // OR:      size: 2, 2         RuleNr: 14
@@ -69,7 +78,7 @@ public class S2FreeCellNetMain {
 
         final int geneticRunCount = 200_000;
         final int populationSize = 1_000;
-        findAddRuleOffNumbersI4O2Genetic(1, geneticRunCount, populationSize); // size: [3, 3], 2 No universal Solution
+        //findAddRuleOffNumbersI4O2Genetic(1, geneticRunCount, populationSize); // size: [3, 3], 2 No universal Solution
         //findAddRuleOffNumbersI4O2Genetic(2, geneticRunCount, populationSize); // size: [4, 3, 3], 3 No universal Solution
         //findAddRuleOffNumbersI4O2Genetic(3, geneticRunCount, populationSize); // size: [4, 4, 3], 3 No universal Solution
         //findAddRuleOffNumbersI4O2Genetic(4, 500_000, 2_00); // size: [4, 5, 5, 3], 4
@@ -275,6 +284,118 @@ public class S2FreeCellNetMain {
         findUniversalGridOffNrDeep(opOutputArr, rowSizeXArr, noCommutative);
     }
 
+    private static void findBooleanZeroRuleOffNumbersI2O1() {
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("ZERO",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 0 }, { 0 }, { 0 }, { 0 } }));
+
+        final int[] rowSizeXArr = new int[] { 2, 1 }; // Input-Layer und eine Regel-Zeile
+        final boolean noCommutative = true;
+
+        findUniversalRuleOffNr(opOutputArr, rowSizeXArr, noCommutative);
+    }
+
+    private static void findBooleanZeroRuleOffNumbersI1O1() {
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("ZERO",
+                new int[][] { { 0 }, { 1 } },
+                new int[][] { { 0 }, { 0 } }));
+
+        final int[] rowSizeXArr = new int[] { 1, 1 }; // Input-Layer und eine Regel-Zeile
+        final boolean noCommutative = true;
+
+        findUniversalRuleOffNr(opOutputArr, rowSizeXArr, noCommutative);
+    }
+
+    private static void findBooleanOneRuleOffNumbersI2O1() {
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("ONE",
+                new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+                new int[][] { { 1 }, { 1 }, { 1 }, { 1 } }));
+
+        final int[] rowSizeXArr = new int[] { 2, 1 }; // Input-Layer und eine Regel-Zeile
+        final boolean noCommutative = true;
+
+        findUniversalRuleOffNr(opOutputArr, rowSizeXArr, noCommutative);
+    }
+
+    private static void findBooleanOneRuleOffNumbersI1O1() {
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("ONE",
+                new int[][] { { 0 }, { 1 } },
+                new int[][] { { 1 }, { 1 } }));
+
+        final int[] rowSizeXArr = new int[] { 1, 1 }; // Input-Layer und eine Regel-Zeile
+        final boolean noCommutative = true;
+
+        findUniversalRuleOffNr(opOutputArr, rowSizeXArr, noCommutative);
+    }
+
+    private static void findBooleanIsRuleOffNumbersI2O1() {
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("NOT",
+                new int[][] { { 0, 0 }, { 1, 1 } },
+                new int[][] { { 0 }, { 1 } }));
+
+        final int[] rowSizeXArr = new int[] { 2, 1 }; // Input-Layer und eine Regel-Zeile
+        final boolean noCommutative = true;
+
+        findUniversalRuleOffNr(opOutputArr, rowSizeXArr, noCommutative);
+    }
+
+    private static void findBooleanIsRuleOffNumbersI1O1() {
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("NOT",
+                new int[][] { { 0 }, { 1 } },
+                new int[][] { { 0 }, { 1 } }));
+
+        final int[] rowSizeXArr = new int[] { 1, 1 }; // Input-Layer und eine Regel-Zeile
+        final boolean noCommutative = true;
+
+        findUniversalRuleOffNr(opOutputArr, rowSizeXArr, noCommutative);
+    }
+
+    private static void findBooleanNotRuleOffNumbersI2O1() {
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("NOT",
+                new int[][] { { 0, 0 }, { 1, 1 } },
+                new int[][] { { 1 }, { 0 } }));
+
+        final int[] rowSizeXArr = new int[] { 2, 1 }; // Input-Layer und eine Regel-Zeile
+        final boolean noCommutative = true;
+
+        findUniversalRuleOffNr(opOutputArr, rowSizeXArr, noCommutative);
+    }
+
+    private static void findBooleanNotRuleOffNumbersI1O1() {
+        // Definition der booleschen Operationen und deren erwartete Outputs
+        final List<OpOutput> opOutputArr = new ArrayList<>();
+
+        opOutputArr.add(new OpOutput("NOT",
+                new int[][] { { 0 }, { 1 } },
+                new int[][] { { 1 }, { 0 } }));
+
+        final int[] rowSizeXArr = new int[] { 1, 1 }; // Input-Layer und eine Regel-Zeile
+        final boolean noCommutative = true;
+
+        findUniversalRuleOffNr(opOutputArr, rowSizeXArr, noCommutative);
+    }
+
     private static void findBooleanAndRuleNumbersI2O1() {
         // Definition der booleschen Operationen und deren erwartete Outputs
         final List<OpOutput> opOutputArr = new ArrayList<>();
@@ -283,9 +404,10 @@ public class S2FreeCellNetMain {
                 new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
                 new int[][] { { 0 }, { 0 }, { 0 }, { 1 } }));
 
-        final int maxSearchSize = 8;
+        final int[] rowSizeXArr = new int[] { 2, 1 }; // Input-Layer und eine Regel-Zeile
+        final boolean noCommutative = true;
 
-        findUniversalRuleNr(maxSearchSize, opOutputArr, 2, 2);
+        findUniversalRuleOffNr(opOutputArr, rowSizeXArr, noCommutative);
     }
 
     private static void findBooleanAndRuleOffNumbersI2O1() {
@@ -968,7 +1090,7 @@ public class S2FreeCellNetMain {
             final List<Long> matchingRuleOffNrList = new ArrayList<>();
             // Prüfe alle 256 Regeln parallel
             IntStream.rangeClosed(0, GridService.MAX_RULE_NR).parallel().forEach(ruleNr -> {
-                for (int offNr = 0; offNr < maxOffsetCombinations; offNr++) {
+                for (int offNr = 0; offNr <= maxOffsetCombinations; offNr++) {
                     final long ruleOffNr = ruleNr * maxOffsetCombinations + offNr;
                     boolean allInputsMatch = true;
                     for (int inputArrArrPos = 0; inputArrArrPos < inputArrArr.length && allInputsMatch; inputArrArrPos++) {
