@@ -1,4 +1,4 @@
-package de.schmiereck.cellNet.state2free;
+package de.schmiereck.cellNet.state2fry;
 
 public class CellNetService {
 
@@ -11,9 +11,9 @@ public class CellNetService {
             for (int x = 0; x < actRow.sizeX; x++) {
                 final Cell calcCell = actCellArr[x];
                 // Nachbarn bestimmen (Randbehandlung: Wrap-Around)
-                final int cellLeftX = x + calcCell.leftOffX;
+                final int cellLeftX = calcCell.leftPosX;
                 final int parentLeftX = (cellLeftX < parentRow.sizeX) ? cellLeftX : cellLeftX % parentRow.sizeX;
-                final int cellRightX = x + calcCell.rightOffX;
+                final int cellRightX = calcCell.rightPosX;
                 final int parentRightX = (cellRightX < parentRow.sizeX - 1) ? cellRightX : cellRightX % parentRow.sizeX;
 
                 //final int leftValue = parentCellArr[leftIndex].value;
@@ -22,7 +22,7 @@ public class CellNetService {
                 final int leftValue = parentCellArr[parentLeftX].value;
                 final int rightValue = parentCellArr[parentRightX].value;
 
-                final int ruleNr = calcCell.ruleNr;
+                final int ruleNr = calcCell.getRuleNr();
 
                 calcCell.value = calcNewValue(leftValue, rightValue, ruleNr);
             }
@@ -30,10 +30,9 @@ public class CellNetService {
     }
 
     static int calcNewValue(final int leftValue, final int rightValue, final int ruleNr) {
-        final int realRulNr = GridService.ruleNrArr[ruleNr];
         // Nachbarschaft als Bitmuster
         final int pattern = (leftValue << 1) | rightValue;
         // Regel anwenden: das Bit an der Position 'pattern' gibt den neuen Wert
-        return (realRulNr >> pattern) & 1;
+        return (ruleNr >> pattern) & 1;
     }
 }

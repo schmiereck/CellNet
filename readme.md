@@ -62,8 +62,13 @@ The ID-Number of a Grid is addressed by the ruleNr and a offNr specifying the of
 cellular automata -  
 one-dimensional,  
 **two** input states results in 16 different output rules.  
-The input parent Cells are freely selectable from all the positions in any of the parent rows.
+The input parent Cells are freely selectable from all the positions in any of the parent rows.  
+Also change the inputs from offset Positions to absolute Positions.
 
 ### TODO  
+* Restrict the rules to that one, who provides usefull logical operations (AND, OR, NAND, NOR, XOR, XNOR, ...).
 * Search systematically for parent cells that deliver the output that you need for a expected output result
   * Add Cells to the Grid until the expected output is reached
+* Allow the Input-Values to be not only in a range 0 - 1 but also in a range 0 - n.
+* Store the output values for all given inputs per cell, to find matching output to input in the grid.
+* Allow more than two inputs per cell.

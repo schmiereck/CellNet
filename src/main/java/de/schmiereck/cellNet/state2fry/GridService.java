@@ -1,44 +1,13 @@
-package de.schmiereck.cellNet.state2free;
+package de.schmiereck.cellNet.state2fry;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class GridService {
-    public static final int[] allRuleNrArr = new int[] {
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
-    };
-
-    public static final int[] booleanRuleNrArr = new int[] {
-        // ZERO:    size: [2, 1], 2      RuleOffNr: 0, 1, 2, 4, 6, 8, 10, 12, 14
-        0,
-        // ONE:    size: [2, 1], 2      RuleOffNr: 27, 29, 30, 33, 35, 36, 39, 41, 42, 45, 46, 47, 48
-        11,
-        // IS:    size: [2, 1], 2      RuleOffNr: 43
-        //14,
-        // NOT:    size: [2, 1], 2      RuleOffNr: 4
-        //4,
-
-        // AND:     size: [2, 1], 2 RuleOffNr: 25
-        8,
-        // OR:      size: [2, 1], 2 RuleOffNr: 43
-        14,
-        // NAND:    size: [2, 1], 2 RuleOffNr: 22
-        7,
-        // NOR:     size: [2, 1], 2 RuleOffNr:  4
-        1,
-        // XOR:     size: [2, 1], 2 RuleOffNr: 19
-        6,
-        // XNOR:    size: [2, 1], 2 RuleOffNr: 28
-        9
-    };
-
-    public static final int[] ruleNrArr = booleanRuleNrArr;
-    //public static final int[] ruleNrArr = allRuleNrArr;
-
-    public static final int RULE_COUNT = ruleNrArr.length; // 16
-    public static final int MAX_RULE_NR = ruleNrArr.length - 1; // 15
+    public static final int RULE_COUNT = 16;
+    public static final int MAX_RULE_NR = 15;
 
     public static Grid createGridByRuleNr(final int sizeX, final int sizeY, final int ruleNr) {
         // sizeY = Anzahl der Regel-Zeilen (ohne Input-Layer)
@@ -51,7 +20,7 @@ public class GridService {
 
             for (int x = 0; x < sizeX; x++) {
                 final Cell cell = new Cell();
-                cell.ruleNr = ruleNr;
+                cell.setRuleNr(ruleNr);
                 cell.value = 0;
                 grid.rowArr[y].cellArr[x] = cell;
             }
@@ -66,6 +35,10 @@ public class GridService {
     }
 
     public record RuleOffNrPair(int ruleNr, long offNr) {
+        public RuleOffNrPair(int ruleNr, long offNr) {
+            this.ruleNr = ruleNr;
+            this.offNr = offNr;
+        }
     }
 
     public static Grid createGridByRuleOffNr(final int[] rowSizeXArr, final long ruleOffNr,
@@ -112,15 +85,15 @@ public class GridService {
                 final Cell cell = new Cell();
 
                 if (y > 0) {
-                    cell.ruleNr = ruleNr;
+                    cell.setRuleNr(ruleNr);
                     // Regel-Zeilen: Offsets basierend auf offNr berechnen
                     // Input-Layer (y=0) bekommt die Standard-Offsets
                     currentOffNr = calcNextOffsetsForOffNr(cell, rowSizeXArr, y, currentOffNr, noCommutative);
                 } else {
                     // Input-Layer: Standard-Offsets
-                    cell.leftOffX = 0;
-                    cell.rightOffX = 0;//Cell.RIGHT_OFF_X;
-                    cell.ruleNr = 0; // Input-Layer
+                    cell.leftPosX = 0;
+                    cell.rightPosX = 0;//Cell.RIGHT_OFF_X;
+                    cell.setRuleNr(0); // Input-Layer
                 }
                 cell.value = 0;
 
@@ -154,15 +127,15 @@ public class GridService {
             for (int x = 0; x < rowSizeX; x++) {
                 final Cell cell = new Cell();
                 if (y > 0) {
-                    cell.ruleNr = calcRuleNrByCountNr(countNr);
+                    cell.setRuleNr(calcRuleNrByCountNr(countNr));
                     //System.out.printf("%d-", cell.ruleNr);
                     countNr = calcNextCountNr(countNr);
                     currentOffNr = calcNextOffsetsForOffNr(cell, rowSizeXArr, y, currentOffNr, noCommutative);
                 } else {
                     // Input-Layer: Standard-Offsets
-                    cell.leftOffX = 0;
-                    cell.rightOffX = 0;//Cell.RIGHT_OFF_X;
-                    cell.ruleNr = 0; // Input-Layer
+                    cell.leftPosX = 0;
+                    cell.rightPosX = 0;//Cell.RIGHT_OFF_X;
+                    cell.setRuleNr(0); // Input-Layer
                 }
                 cell.value = 0;
 
@@ -191,10 +164,10 @@ public class GridService {
             for (int x = 0; x < rowSizeX; x++) {
                 final Cell cell = new Cell();
                 if (y > 0) {
-                    cell.ruleNr = calcRuleNrByCountNr(countNr);
+                    cell.setRuleNr(calcRuleNrByCountNr(countNr));
                     countNr = calcNextCountNr(countNr);
                 } else {
-                    cell.ruleNr = 0; // Input-Layer
+                    cell.setRuleNr(0); // Input-Layer
                 }
                 cell.value = 0;
                 grid.rowArr[y].cellArr[x] = cell;
@@ -241,8 +214,8 @@ public class GridService {
         final long retOffNr;
         if (y == 0) {
             // Input-Layer: Standard-Offsets
-            cell.leftOffX = 0;
-            cell.rightOffX = 0;//Cell.RIGHT_OFF_X;
+            cell.leftPosX = 0;
+            cell.rightPosX = 0;//Cell.RIGHT_OFF_X;
             retOffNr = currentOffNr;
         } else {
             // Regel-Zeilen: Offsets basierend auf offNr berechnen
@@ -251,13 +224,13 @@ public class GridService {
 
             if (!offsetCombinations.isEmpty()) {
                 final int[] selectedOffset = offsetCombinations.get(((int) (currentOffNr % offsetCombinations.size())));
-                cell.leftOffX = selectedOffset[0];
-                cell.rightOffX = selectedOffset[1];
+                cell.leftPosX = selectedOffset[0];
+                cell.rightPosX = selectedOffset[1];
                 retOffNr = currentOffNr / offsetCombinations.size();
             } else {
                 // Fallback auf Standard-Offsets
-                cell.leftOffX = 0;
-                cell.rightOffX = Cell.RIGHT_OFF_X;
+                cell.leftPosX = 0;
+                cell.rightPosX = Cell.RIGHT_OFF_X;
                 retOffNr = currentOffNr;
             }
         }
@@ -320,7 +293,7 @@ public class GridService {
             for (int x = 0; x < rowSizeX; x++) {
                 Cell orig = grid.rowArr[y].cellArr[x];
                 Cell copy = new Cell();
-                copy.ruleNr = orig.ruleNr;
+                copy.setRuleNr(orig.getRuleNr());
                 copy.value = 0; // value zurücksetzen
                 nextGrid.rowArr[y].cellArr[x] = copy;
             }
@@ -333,12 +306,12 @@ public class GridService {
             for (int x = 0; x < row.sizeX; x++) {
                 Cell cell = row.cellArr[x];
                 if (carry == 0) break outer;
-                int newRuleNr = cell.ruleNr + carry;
+                int newRuleNr = cell.getRuleNr() + carry;
                 if (newRuleNr > MAX_RULE_NR) {
-                    cell.ruleNr = 0;
+                    cell.setRuleNr(0);
                     carry = 1;
                 } else {
-                    cell.ruleNr = newRuleNr;
+                    cell.setRuleNr(newRuleNr);
                     carry = 0;
                 }
             }
@@ -348,7 +321,7 @@ public class GridService {
         for (int y = 0; y < sizeY; y++) {
             final Row row = nextGrid.rowArr[y];
             for (int x = 0; x < row.sizeX; x++) {
-                if (row.cellArr[x].ruleNr != 0) {
+                if (row.cellArr[x].getRuleNr() != 0) {
                     allZero = false;
                     break;
                 }

@@ -1,4 +1,4 @@
-package de.schmiereck.cellNet.state2free;
+package de.schmiereck.cellNet.state2fry;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -7,7 +7,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
 
-public class S2FreeCellNetMain {
+public class S2FryCellNetMain {
     public static boolean showExtraResults = false;
     public static boolean ShowFoundNr = false;
 
@@ -19,27 +19,27 @@ public class S2FreeCellNetMain {
         //findTestRuleNumbersI2O2(); // No universal Solution.
         //findTestRuleNumbersI2O2Deep(); // Works. size: [2, 2], 2+1 GridNr: 40160
 
-        //findBooleanZeroRuleOffNumbersI2O1();      // ZERO:    size: [2, 1], 2      RuleOffNr: 0, 1, 2, 4, 6, 8, 10, 12, 14
+        findBooleanZeroRuleOffNumbersI2O1();      // ZERO:    size: [2, 1], 2      RuleOffNr: 0, 1, 2, 4, 6, 8, 10, 12, 14
         //findBooleanZeroRuleOffNumbersI1O1();      // ZERO:    size: [1, 1], 2      RuleOffNr: 0
-        //findBooleanOneRuleOffNumbersI2O1();      // ONE:    size: [2, 1], 2      RuleOffNr: 27, 29, 30, 33, 35, 36, 39, 41, 42, 45, 46, 47, 48
+        findBooleanOneRuleOffNumbersI2O1();      // ONE:    size: [2, 1], 2      RuleOffNr: 32
         //findBooleanOneRuleOffNumbersI1O1();      // ONE:    size: [1, 1], 2      RuleOffNr: 0
-        //findBooleanIsRuleOffNumbersI2O1();      // IS:    size: [2, 1], 2      RuleOffNr: 43
+        //findBooleanIsRuleOffNumbersI2O1();      // IS:    size: [2, 1], 2      RuleOffNr: 16, 17, 18, 20, 21, 22, 24, 25, 26, 28, 29, 30
         //findBooleanIsRuleOffNumbersI1O1();      // IS:    size: [1, 1], 2      RuleOffNr: 0
-        //findBooleanNotRuleOffNumbersI2O1();      // NOT:    size: [2, 1], 2      RuleOffNr: 4
+        //findBooleanNotRuleOffNumbersI2O1();      // NOT:    size: [2, 1], 2      RuleOffNr: 2, 3, 4, 6, 7, 8, 10, 11, 12, 14, 15, 16
         //findBooleanNotRuleOffNumbersI1O1();      // NOT:    size: [1, 1], 2      RuleOffNr: 0
 
         //findBooleanAndRuleNumbersI2O1();      // AND:     size: 2, 2      RuleOffNr:  8
-        //findBooleanAndRuleOffNumbersI2O1();   // AND:     size: [2, 1], 2 RuleOffNr: 25
+        findBooleanAndRuleOffNumbersI2O1();   // AND:     size: [2, 1], 2 RuleOffNr: 17
         //findBooleanOrRuleNumbersI2O1();       // OR:      size: 2, 2         RuleNr: 14
-        //findBooleanOrRuleOffNumbersI2O1();    // OR:      size: [2, 1], 2 RuleOffNr: 43
+        findBooleanOrRuleOffNumbersI2O1();    // OR:      size: [2, 1], 2 RuleOffNr: 29
         //findBooleanNandRuleNumbersI2O1();     // NAND:    size: 2, 2         RuleNr:  7
-        //findBooleanNandRuleOffNumbersI2O1();  // NAND:    size: [2, 1], 2 RuleOffNr: 22
+        findBooleanNandRuleOffNumbersI2O1();  // NAND:    size: [2, 1], 2 RuleOffNr: 15
         //findBooleanNorRuleNumbersI2O1();      // NOR:     size: 2, 2         RuleNr:  1
-        //findBooleanNorRuleOffNumbersI2O1();   // NOR:     size: [2, 1], 2 RuleOffNr:  4
+        findBooleanNorRuleOffNumbersI2O1();   // NOR:     size: [2, 1], 2 RuleOffNr:  3
         //findBooleanXorRuleNumbersI2O1();      // XOR:     size: 2, 2         RuleNr:  6
-        //findBooleanXorRuleOffNumbersI2O1();   // XOR:     size: [2, 1], 2 RuleOffNr: 19
+        findBooleanXorRuleOffNumbersI2O1();   // XOR:     size: [2, 1], 2 RuleOffNr: 13
         //findBooleanXnorRuleNumbersI2O1();     // XNOR:    size: 2, 2         RuleNr:  9
-        //findBooleanXnorRuleOffNumbersI2O1();  // XNOR:    size: [2, 1], 2 RuleOffNr: 28
+        findBooleanXnorRuleOffNumbersI2O1();  // XNOR:    size: [2, 1], 2 RuleOffNr: 19
 
         //findBooleanAndGridOffNumbersI2O1Deep(1);  // AND:     size: [2, 1], 2 GridOffNr: 1553
         //findBooleanAndGridOffNumbersI2O1Deep(2);  // AND:     size: [2, 2, 1], 2 GridOffNr: 26214800
@@ -81,8 +81,7 @@ public class S2FreeCellNetMain {
         //findAddRuleOffNumbersI4O2Genetic(1, geneticRunCount, populationSize); // size: [3, 3], 2 No universal Solution
         //findAddRuleOffNumbersI4O2Genetic(2, geneticRunCount, populationSize); // size: [4, 3, 3], 3 No universal Solution
         //findAddRuleOffNumbersI4O2Genetic(3, geneticRunCount, populationSize); // size: [4, 4, 3], 3 No universal Solution
-        //findAddRuleOffNumbersI4O2Genetic(4, 500_000, 2_00); // size: [4, 5, 5, 3], 4 No universal Solution
-        findAddRuleOffNumbersI4O2Genetic(4, 1_000_000, 2_000); // size: [4, 5, 5, 3], 4 No universal Solution
+        //findAddRuleOffNumbersI4O2Genetic(4, 500_000, 2_00); // size: [4, 5, 5, 3], 4
     }
 
     private static void findTestRuleNumbersI2O2Deep() {
@@ -346,8 +345,8 @@ public class S2FreeCellNetMain {
         final List<OpOutput> opOutputArr = new ArrayList<>();
 
         opOutputArr.add(new OpOutput("IS",
-                new int[][] { { 0, 0 }, { 1, 1 }, { 0, 1 }, { 1, 0 } },
-                new int[][] { { 0 }, { 1 }, { 1 }, { 1 } }));
+                new int[][] { { 0, 0 }, { 1, 1 } },
+                new int[][] { { 0 }, { 1 } }));
 
         final int[] rowSizeXArr = new int[] { 2, 1 }; // Input-Layer und eine Regel-Zeile
         final boolean noCommutative = true;
@@ -374,8 +373,8 @@ public class S2FreeCellNetMain {
         final List<OpOutput> opOutputArr = new ArrayList<>();
 
         opOutputArr.add(new OpOutput("NOT",
-                new int[][] { { 0, 0 }, { 1, 1 }, { 0, 1 }, { 1, 0 } },
-                new int[][] { { 1 }, { 0 }, { 0 }, { 0 } }));
+                new int[][] { { 0, 0 }, { 1, 1 } },
+                new int[][] { { 1 }, { 0 } }));
 
         final int[] rowSizeXArr = new int[] { 2, 1 }; // Input-Layer und eine Regel-Zeile
         final boolean noCommutative = true;
@@ -1856,7 +1855,7 @@ public class S2FreeCellNetMain {
             }
             System.out.print(" | ");
             for (int x = 0; x < row.sizeX; x++) {
-                System.out.printf("%02d ", GridService.ruleNrArr[row.cellArr[x].ruleNr]);
+                System.out.printf("%02d ", row.cellArr[x].getRuleNr());
             }
             System.out.println();
         }
@@ -1876,7 +1875,7 @@ public class S2FreeCellNetMain {
             }
             for (int x = 0; x < row.sizeX; x++) {
                 final Cell cell = row.cellArr[x];
-                System.out.printf("%02d(%+01d,%+01d) ", GridService.ruleNrArr[cell.ruleNr], cell.leftOffX, cell.rightOffX);
+                System.out.printf("%02d(%+01d,%+01d) ", cell.getRuleNr(), cell.leftPosX, cell.rightPosX);
             }
             System.out.println();
         }
