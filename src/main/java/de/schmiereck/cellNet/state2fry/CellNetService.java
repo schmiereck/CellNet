@@ -30,9 +30,10 @@ public class CellNetService {
     }
 
     static int calcNewValue(final int leftValue, final int rightValue, final int ruleNr) {
+        final int realRulNr = GridService.ruleNrArr[ruleNr];
         // Nachbarschaft als Bitmuster
         final int pattern = (leftValue << 1) | rightValue;
         // Regel anwenden: das Bit an der Position 'pattern' gibt den neuen Wert
-        return (ruleNr >> pattern) & 1;
+        return (realRulNr >> pattern) & 1;
     }
 }

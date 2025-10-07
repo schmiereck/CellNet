@@ -66,6 +66,7 @@ The input parent Cells are freely selectable from all the positions in any of th
 Also change the inputs from offset Positions to absolute Positions.
 
 ### TODO  
+* Add "real" genetic grid population and mutations without large Hash-Numbers to allow the processing of bigger Grids.
 * Restrict the rules to that one, who provides usefull logical operations (AND, OR, NAND, NOR, XOR, XNOR, ...).
 * Search systematically for parent cells that deliver the output that you need for a expected output result
   * Add Cells to the Grid until the expected output is reached
